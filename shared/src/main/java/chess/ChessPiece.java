@@ -122,7 +122,27 @@ public class ChessPiece {
             ///
         }
         else if (piece.getPieceType() == PieceType.QUEEN){
-            ///
+            int[][] directions = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1,-1}, {0, -1}, {1, -1}};
+            for (int[] d : directions){
+                int rowDestin = d[0] + startRow;
+                int colDestin = d[1] + startCol;
+                while (ChessBoard.inBounds(rowDestin, colDestin)){
+                    ChessPosition destin = new ChessPosition(rowDestin, colDestin);
+                    ChessPiece destinPiece = board.getPiece(destin);
+                    if (destinPiece == null){
+                        moves.add(new ChessMove(start, destin, null));
+                    }
+                    else {
+                        if (destinPiece.getTeamColor() != piece.getTeamColor()){
+                            moves.add(new ChessMove(start, destin, null));
+                        }
+                        break;
+                    }
+                    rowDestin += d[0];
+                    colDestin += d[1];
+                }
+
+            }
         }
         else if (piece.getPieceType() == PieceType.KING){
             ///
