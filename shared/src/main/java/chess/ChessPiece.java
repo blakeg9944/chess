@@ -119,7 +119,24 @@ public class ChessPiece {
             }
         }
         else if (piece.getPieceType() == PieceType.KNIGHT){
-            ///
+            int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
+            for (int[] d : directions){
+                int rowDestin = startRow + d[0];
+                int colDestin = startCol + d[1];
+                if (ChessBoard.inBounds(rowDestin, colDestin)){
+                    ChessPosition destin = new ChessPosition(rowDestin, colDestin);
+                    ChessPiece destinPiece = board.getPiece(destin);
+                    if (destinPiece == null){
+                        moves.add(new ChessMove(start, destin, null));
+                    }
+                    else {
+                        if (destinPiece.pieceColor != piece.pieceColor){
+                            moves.add(new ChessMove(start, destin, null));
+                        }
+                        continue;
+                    }
+                }
+            }
         }
         else if (piece.getPieceType() == PieceType.QUEEN){
             int[][] directions = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1,-1}, {0, -1}, {1, -1}};
