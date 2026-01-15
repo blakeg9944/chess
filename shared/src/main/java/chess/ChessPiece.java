@@ -133,7 +133,6 @@ public class ChessPiece {
                         if (destinPiece.pieceColor != piece.pieceColor){
                             moves.add(new ChessMove(start, destin, null));
                         }
-                        continue;
                     }
                 }
             }
@@ -162,10 +161,45 @@ public class ChessPiece {
             }
         }
         else if (piece.getPieceType() == PieceType.KING){
-            ///
+            int[][] directions = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1,-1}, {0, -1}, {1, -1}};
+            for (int[] d : directions){
+                int rowDestin = startRow + d[0];
+                int colDestin = startCol + d[1];
+                if (ChessBoard.inBounds(rowDestin, colDestin)){
+                    ChessPosition destin = new ChessPosition(rowDestin, colDestin);
+                    ChessPiece destinPiece = board.getPiece(destin);
+                    if (destinPiece == null){
+                        moves.add(new ChessMove(start, destin, null));
+                    }
+                    else {
+                        if (destinPiece.pieceColor != piece.pieceColor){
+                            moves.add(new ChessMove(start, destin, null));
+                        }
+                    }
+                }
+            }
         }
         else if (piece.getPieceType() == PieceType.PAWN){
-            ///
+            int[][] diagDirections = {{1, -1}, {1, 1}};
+            for (int [] d : diagDirections){
+                int rowDestin = d[0] + startRow;
+                int colDestin = d[1] + startCol;
+                if (ChessBoard.inBounds(rowDestin, colDestin)){
+                    ChessPosition diagDestin = new ChessPosition(rowDestin, colDestin);
+                    ChessPiece diagDestinPiece = board.getPiece(diagDestin);
+                    if (diagDestinPiece != null && diagDestinPiece.pieceColor != piece.pieceColor) {
+                        moves.add(new ChessMove(start, diagDestin, null));
+                    }
+                }
+            }
+            if (ChessBoard.inBounds(startRow +1, startCol)){
+                ChessPosition straightDestin = new ChessPosition(startRow + 1, startCol);
+                ChessPiece starightDestinPiece = board.getPiece(straightDestin);
+                if (starightDestinPiece == null){
+                    moves.add(new ChessMove(start, straightDestin, null));
+                }
+
+            }
         }
         return moves;
     }
