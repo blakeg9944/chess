@@ -122,7 +122,7 @@ public class ChessPiece {
             moves = (List<ChessMove>) rookMoves(board, myPosition);
         }
         else if (piece.getPieceType() == PieceType.KNIGHT){
-            int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
+            /*int[][] directions = {{2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
             for (int[] d : directions){
                 int rowDestin = startRow + d[0];
                 int colDestin = startCol + d[1];
@@ -138,7 +138,8 @@ public class ChessPiece {
                         }
                     }
                 }
-            }
+            }*/
+            return knightMoves(board, myPosition);
         }
         else if (piece.getPieceType() == PieceType.QUEEN){
             int[][] directions = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1,-1}, {0, -1}, {1, -1}};
@@ -326,6 +327,30 @@ public class ChessPiece {
                 destinCol += d[1];
             }
 
+        }
+        return moves;
+    }
+    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition){
+        List<ChessMove> moves = new ArrayList<>();
+        int[][] directions = {{1, 2}, {1, -2},{2, 1}, {2, -1}, {-1, 2}, {-1, -2}, {-2, 1}, {-2, -1}};
+        int startRow = myPosition.getRow();
+        int startCol = myPosition.getColumn();
+        ChessPiece piece = board.getPiece(myPosition);
+        for (int [] d : directions){
+            int destinRow = startRow + d[0];
+            int destinCol = startCol + d[1];
+            if (ChessBoard.inBounds(destinRow, destinCol)){
+                ChessPosition destin = new ChessPosition(destinRow, destinCol);
+                ChessPiece destinPiece = board.getPiece(destin);
+                if (destinPiece == null){
+                    moves.add(new ChessMove(myPosition, destin, null));
+                }
+                else{
+                    if (piece.pieceColor != destinPiece.pieceColor){
+                        moves.add(new ChessMove(myPosition, destin, null));
+                    }
+                }
+            }
         }
         return moves;
     }
