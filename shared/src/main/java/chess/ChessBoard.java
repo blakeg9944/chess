@@ -80,6 +80,18 @@ public class ChessBoard {
         return (r <= 8 && r >= 1 && c <= 8 && c >= 1);
     }
 
+    public ChessPosition getKingPosition(ChessGame.TeamColor color){
+        for (int r = 0; r < squares.length; r++){
+            for (int c = 0; c < squares.length; c++){
+                ChessPiece piece = squares[r][c];
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color){
+                    return new ChessPosition(r, c);
+                }
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
