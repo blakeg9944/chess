@@ -121,4 +121,18 @@ public class ChessBoard {
     public int hashCode() {
         return Arrays.deepHashCode(squares);
     }
+
+    @Override
+    public String toString() {
+        String string = "";
+        for (ChessPiece[] p : squares){
+            for (ChessPiece piece : p){
+                if (piece != null){
+                    string += piece.toString();
+                }
+
+            }
+        }
+        return string;
+    }
 }

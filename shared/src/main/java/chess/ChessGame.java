@@ -11,11 +11,12 @@ import java.util.Map;
  */
 public class ChessGame {
     private ChessBoard board;
-    private TeamColor turn;
+    private TeamColor teamTurn;
 
     public ChessGame() {
         this.board = new ChessBoard();
-        this.turn = TeamColor.WHITE;
+        board.resetBoard();
+        this.teamTurn = TeamColor.WHITE;
     }
 
 
@@ -23,7 +24,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return turn;
+        return teamTurn;
     }
 
     /**
@@ -32,7 +33,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.turn = team;
+        this.teamTurn = team;
     }
 
     /**
@@ -99,7 +100,7 @@ public class ChessGame {
             enemyMoves.addAll(pieceMoves); // append all moves to master list
         }
         for (ChessMove m : enemyMoves){
-            if (m.getEndPosition() == kingPosition){
+            if (m.getEndPosition().equals(kingPosition)){
                 return true;
             }
         }
@@ -151,19 +152,19 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return Objects.equals(board, chessGame.board) && turn == chessGame.turn;
+        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(board, turn);
+        return Objects.hash(teamTurn, board);
     }
 
     @Override
     public String toString() {
         return "ChessGame{" +
                 "board=" + board +
-                ", turn=" + turn +
+                ", turn=" + teamTurn +
                 '}';
     }
 }
