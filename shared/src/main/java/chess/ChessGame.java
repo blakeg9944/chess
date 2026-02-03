@@ -1,9 +1,7 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.Map;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -32,7 +30,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.turn = TeamColor.WHITE;
+        this.turn = team;
     }
 
     /**
@@ -72,7 +70,21 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        return true;
+        ChessPosition kingPosition = board.getKingPosition(teamColor);
+        Map<ChessPosition, ChessPiece> enemyPieces;
+        if (teamColor == TeamColor.BLACK){
+            enemyPieces = board.getPieces(TeamColor.WHITE);
+        }
+        else{
+            enemyPieces = board.getPieces(TeamColor.BLACK);
+        }
+        for (Map.Entry<ChessPosition, ChessPiece> entry : enemyPieces.entrySet()){
+            ChessPosition pos = entry.getKey();
+            if (pos == kingPosition ){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -126,5 +138,12 @@ public class ChessGame {
     @Override
     public int hashCode() {
         return Objects.hash(board, turn);
+    }
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", turn=" + turn +
+                '}';
     }
 }

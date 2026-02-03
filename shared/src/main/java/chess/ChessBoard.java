@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -85,11 +87,25 @@ public class ChessBoard {
             for (int c = 0; c < squares.length; c++){
                 ChessPiece piece = squares[r][c];
                 if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color){
-                    return new ChessPosition(r, c);
+                    return new ChessPosition(r-1, c-1);
                 }
             }
         }
         return null;
+    }
+
+    public Map<ChessPosition, ChessPiece> getPieces(ChessGame.TeamColor teamColor){
+        Map<ChessPosition, ChessPiece> pieces = new HashMap<>();
+        for (int r = 0; r < squares.length; r++) {
+            for (int c = 0; c < squares[r].length; c++) {
+                ChessPiece piece = squares[r][c];
+                ChessPosition pos = new ChessPosition(r + 1, c + 1);
+                if (piece != null && piece.getTeamColor() == teamColor){
+                    pieces.put(pos, piece);
+                }
+            }
+        }
+        return pieces;
     }
 
     @Override
