@@ -14,6 +14,8 @@ public class ChessGame {
     private TeamColor turn;
 
     public ChessGame() {
+        this.board = new ChessBoard();
+        this.turn = TeamColor.WHITE;
     }
 
 
@@ -69,9 +71,22 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
+        //    if NOT inCheck(currentPlayer):
+        //            return false
+        //
+        //            for each piece belonging to currentPlayer:
+        //            for each legal move of that piece:
+        //    simulate the move
+        //        if king is NOT in check after the move:
+        //    undo the move
+        //            return false  // escape exists
+        //    undo the move
+
+        //return true  // no escape → checkmate
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.getKingPosition(teamColor);
         Map<ChessPosition, ChessPiece> enemyPieces;
+        List<ChessMove> enemyMoves = new ArrayList<>();
         if (teamColor == TeamColor.BLACK){
             enemyPieces = board.getPieces(TeamColor.WHITE);
         }
@@ -79,8 +94,12 @@ public class ChessGame {
             enemyPieces = board.getPieces(TeamColor.BLACK);
         }
         for (Map.Entry<ChessPosition, ChessPiece> entry : enemyPieces.entrySet()){
-            ChessPosition pos = entry.getKey();
-            if (pos == kingPosition ){
+            ChessPiece piece = entry.getValue();
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, entry.getKey()); // piece's moves
+            enemyMoves.addAll(pieceMoves); // append all moves to master list
+        }
+        for (ChessMove m : enemyMoves){
+            if (m.getEndPosition() == kingPosition){
                 return true;
             }
         }
@@ -139,6 +158,7 @@ public class ChessGame {
     public int hashCode() {
         return Objects.hash(board, turn);
     }
+
     @Override
     public String toString() {
         return "ChessGame{" +
