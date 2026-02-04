@@ -114,6 +114,10 @@ public class ChessGame {
             for (ChessMove m: pieceMoves){
                 ChessBoard simulatedBoard = board.clone();
                 simulatedBoard.addPiece(m.getEndPosition(), piece);
+                simulatedBoard.addPiece(m.getStartPosition(), null);
+                if (!simulateisInCheck(teamColor, simulatedBoard)){
+                    return false;
+                }
 
             }
         }
@@ -181,5 +185,28 @@ public class ChessGame {
                 "board=" + board +
                 ", turn=" + teamTurn +
                 '}';
+    }
+
+    public boolean simulateisInCheck(TeamColor teamColor, ChessBoard theBoard) {
+        ChessPosition kingPosition = theBoard.getKingPosition(teamColor);
+        Map<ChessPosition, ChessPiece> enemyPieces;
+        List<ChessMove> enemyMoves = new ArrayList<>();
+        if (teamColor == TeamColor.BLACK){
+            enemyPieces = theBoard.getPieces(TeamColor.WHITE);
+        }
+        else{
+            enemyPieces = theBoard.getPieces(TeamColor.BLACK);
+        }
+        for (Map.Entry<ChessPosition, ChessPiece> entry : enemyPieces.entrySet()){
+            ChessPiece piece = entry.getValue();
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(theBoard, entry.getKey()); // piece's moves
+            enemyMoves.addAll(pieceMoves); // append all moves to master list
+        }
+        for (ChessMove m : enemyMoves){
+            if (m.getEndPosition().equals(kingPosition)){
+                return true;
+            }
+        }
+        return false;
     }
 }
