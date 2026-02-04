@@ -72,18 +72,7 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-        //    if NOT inCheck(currentPlayer):
-        //            return false
-        //
-        //            for each piece belonging to currentPlayer:
-        //            for each legal move of that piece:
-        //    simulate the move
-        //        if king is NOT in check after the move:
-        //    undo the move
-        //            return false  // escape exists
-        //    undo the move
 
-        //return true  // no escape → checkmate
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.getKingPosition(teamColor);
         Map<ChessPosition, ChessPiece> enemyPieces;
@@ -114,7 +103,33 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        if (!isInCheck(teamColor)){
+            return false;
+        }
+        Map<ChessPosition, ChessPiece> myPieces;
+        myPieces = board.getPieces(teamColor);
+        for (Map.Entry<ChessPosition, ChessPiece> entry : myPieces.entrySet()) {
+            ChessPiece piece = entry.getValue();
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, entry.getKey());
+            for (ChessMove m: pieceMoves){
+                ChessBoard simulatedBoard = board.clone();
+                simulatedBoard.addPiece(m.getEndPosition(), piece);
+
+            }
+        }
         return true;
+        //    if NOT inCheck(currentPlayer):
+        //            return false
+        //
+        //            for each piece belonging to currentPlayer:
+        //            for each legal move of that piece:
+        //    simulate the move
+        //        if king is NOT in check after the move:
+        //    undo the move
+        //            return false  // escape exists
+        //    undo the move
+
+        //return true  // no escape → checkmate
     }
 
     /**

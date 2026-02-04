@@ -87,7 +87,7 @@ public class ChessBoard {
             for (int c = 0; c < squares.length; c++){
                 ChessPiece piece = squares[r][c];
                 if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == color){
-                    return new ChessPosition(r-1, c-1);
+                    return new ChessPosition(r+1, c+1);
                 }
             }
         }
@@ -134,5 +134,25 @@ public class ChessBoard {
             }
         }
         return string;
+    }
+
+    @Override
+    public ChessBoard clone() {
+        ChessBoard copy = new ChessBoard();
+
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = getPiece(pos);
+
+                if (piece != null) {
+                    copy.addPiece(
+                            pos,
+                            new ChessPiece(piece.getTeamColor(), piece.getPieceType())
+                    );
+                }
+            }
+        }
+        return copy;
     }
 }
