@@ -80,7 +80,18 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-       int placeHolder = 3;
+       ChessPosition startPos = move.getStartPosition();
+       ChessPosition destinPos = move.getEndPosition();
+       ChessPiece piece = board.getPiece(startPos);
+       board.addPiece(startPos, null);
+       if (move.getPromotionPiece() != null){
+           ChessPiece promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+           board.addPiece(destinPos,promotionPiece);
+       }
+       else{
+           board.addPiece(destinPos, piece);
+       }
+
     }
 
     /**
