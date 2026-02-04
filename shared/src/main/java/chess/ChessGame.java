@@ -52,8 +52,25 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null){
+            return null;
+        }
         List<ChessMove> moves = new ArrayList<>();
-        return moves;
+        moves = (List<ChessMove>) piece.pieceMoves(board, startPosition);
+        List<ChessMove> movesFinal = new ArrayList<>();
+        for (ChessMove m : moves){
+            ChessBoard simulatedBoard = board.clone();
+            simulatedBoard.addPiece(m.getEndPosition(), piece);
+            simulatedBoard.addPiece(m.getStartPosition(), null);
+            if (!simulateisInCheck(piece.getTeamColor(), simulatedBoard)){
+                movesFinal.add(m);
+            }
+        }
+        return movesFinal;
+        // find piece at start position
+        // run through piece calculator
+        // remove pieces that put piece in check
     }
 
     /**
