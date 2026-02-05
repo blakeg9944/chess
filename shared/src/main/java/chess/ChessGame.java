@@ -53,10 +53,10 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null){
-            return null;
-        }
         List<ChessMove> moves = new ArrayList<>();
+        if (piece == null){
+            return moves;
+        }
         moves = (List<ChessMove>) piece.pieceMoves(board, startPosition);
         List<ChessMove> movesFinal = new ArrayList<>();
         for (ChessMove m : moves){
@@ -83,13 +83,35 @@ public class ChessGame {
        ChessPosition startPos = move.getStartPosition();
        ChessPosition destinPos = move.getEndPosition();
        ChessPiece piece = board.getPiece(startPos);
-       board.addPiece(startPos, null);
+       if (piece == null || piece.getTeamColor() != teamTurn){
+           throw new InvalidMoveException();
+       }
        if (move.getPromotionPiece() != null){
            ChessPiece promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
-           board.addPiece(destinPos,promotionPiece);
+           List<ChessMove> validMoves = (List<ChessMove>) validMoves(startPos);
+           if (!validMoves.isEmpty() && validMoves.contains(new ChessMove(startPos, destinPos, promotionPiece.getPieceType()))){
+               board.addPiece(startPos, null);
+               board.addPiece(destinPos,promotionPiece);
+           }
+           else{
+               throw new InvalidMoveException();
+           }
        }
        else{
-           board.addPiece(destinPos, piece);
+           List<ChessMove> validMoves = (List<ChessMove>) validMoves(startPos);
+           if (!validMoves.isEmpty() && validMoves.contains(new ChessMove(startPos, destinPos, null))){
+               board.addPiece(startPos, null);
+               board.addPiece(destinPos, piece);
+           }
+           else{
+               throw new InvalidMoveException();
+           }
+       }
+       if (teamTurn == TeamColor.WHITE){
+           teamTurn = TeamColor.BLACK;
+       }
+       else{
+           teamTurn = TeamColor.WHITE;
        }
 
     }
