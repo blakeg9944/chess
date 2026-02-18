@@ -22,4 +22,8 @@ public class MemoryAuthDAO implements AuthDAO {
         authDataHashMap.clear();
 
     }
+
+    public void clear() throws DataAccessException {
+        authDataHashMap.clear();
+    }
 }

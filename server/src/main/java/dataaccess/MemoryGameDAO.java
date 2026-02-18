@@ -30,4 +30,8 @@ public class MemoryGameDAO implements GameDAO {
         games.put(g.gameID(), g);
 
     }
+
+    public void clear() throws DataAccessException {
+        games.clear();
+    }
 }
