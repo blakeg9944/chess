@@ -1,6 +1,7 @@
 package server;
 
 import chess.*;
+import dataaccess.*;
 
 public class ServerMain {
     public static void main(String[] args) {
