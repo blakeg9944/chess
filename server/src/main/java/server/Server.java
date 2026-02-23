@@ -3,6 +3,7 @@ package server;
 import dataaccess.*;
 import io.javalin.*;
 import service.ClearService;
+import service.RegisterService;
 
 public class Server {
 
@@ -20,8 +21,13 @@ public class Server {
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
+        //
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         javalin.delete("/db", (ctx) -> new ClearHandler(clearService).handle(ctx));
+        //
+        RegisterService registerService = new RegisterService(userDAO, authDAO);
+        RegisterHandler registerHandler = new RegisterHandler(registerService);
+        javalin.post("/user", registerHandler);
         return javalin.port();
     }
 

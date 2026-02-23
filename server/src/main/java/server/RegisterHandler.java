@@ -1,17 +1,13 @@
 package server;
 
-import com.google.gson.Gson;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import io.javalin.http.InternalServerErrorResponse;
 import model.RegisterRequest;
 import model.RegisterResult;
 import org.jetbrains.annotations.NotNull;
 import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.RegisterService;
-
-import java.net.http.HttpResponse;
 import java.util.Map;
 
 public class RegisterHandler implements Handler {
