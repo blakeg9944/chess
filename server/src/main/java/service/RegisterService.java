@@ -1,18 +1,47 @@
 package service;
 
-import io.javalin.http.BadRequestResponse;
+import dataaccess.AuthDAO;
+import dataaccess.UserDAO;
+import model.AuthData;
 import model.RegisterRequest;
 import model.RegisterResult;
+import model.UserData;
+
+import java.util.UUID;
+
 
 public class RegisterService{
 
-    public RegisterResult register(RegisterRequest registerRequest) throws Exception{
-        validateRequest(registerRequest);
-        return new RegisterResult(RegisterResult.username())
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
+
+    public RegisterService(UserDAO userDAO, AuthDAO authDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
 
-    private void validateRequest(RegisterRequest registerRequest){
-        if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null){
-            throw new BadRequestResponse("Error: bad request");
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
     }
+
+    public RegisterResult register(RegisterRequest registerRequest) throws Exception{
+        validateRequest(registerRequest);
+        UserData existingUser = userDAO.getUser(registerRequest.username());
+        if (existingUser != null){
+            throw new AlreadyTakenException("Error: already taken");
+        }
+        UserData newUserData = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
+        userDAO.createUser(newUserData);
+        String authToken = generateToken();
+        AuthData newAuthData = new AuthData(authToken, registerRequest.username());
+        authDAO.createAuth(newAuthData);
+        return new RegisterResult(registerRequest.username(), authToken);
+    }
+
+    private void validateRequest(RegisterRequest registerRequest) throws BadRequestException {
+        if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+    }
+
 }
