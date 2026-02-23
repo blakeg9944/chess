@@ -5,32 +5,40 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.InternalServerErrorResponse;
 import model.RegisterRequest;
+import model.RegisterResult;
 import org.jetbrains.annotations.NotNull;
+import service.AlreadyTakenException;
 import service.BadRequestException;
+import service.RegisterService;
 
 import java.net.http.HttpResponse;
+import java.util.Map;
 
 public class RegisterHandler implements Handler {
+    private final RegisterService service;
 
-    private HttpResponse<Object> ctx;
+    public RegisterHandler(RegisterService service){
+        this.service = service;
+    }
 
     @Override
-    public void handle(@NotNull Context context) throws Exception {
+    public void handle(@NotNull Context ctx) throws Exception {
         try {
-            String jsonBody = ctx.body().toString();
-
-            var serializer = new Gson();
-
-            RegisterRequest request = serializer.fromJson(jsonBody, RegisterRequest.class);
-
-            RegisterResult result = registerService(request);
-
+            RegisterRequest registerRequest = ctx.bodyAsClass(RegisterRequest.class);
+            RegisterResult registerResult = service.register(registerRequest);
             ctx.status(200);
-            ctx.result(serializer.toJson(result));
+            ctx.json(registerResult);
         }
-        catch (BadRequestException exception){
+        catch (BadRequestException badRequestException){
             ctx.status(400);
-            ctx.result(new Gson().toJson(new InternalServerErrorResponse(exception.getMessage())));
+            ctx.result(Map.of("message", badRequestException.getMessage()).toString());
+        }
+        catch(AlreadyTakenException alreadyTakenException){
+            ctx.status(403);
+            ctx.result(Map.of("message", alreadyTakenException.getMessage()).toString());
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.result(Map.of("message", e.getMessage()).toString());
         }
 
     }
