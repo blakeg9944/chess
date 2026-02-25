@@ -1,5 +1,6 @@
 package server;
 
+import com.google.gson.Gson;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import model.RegisterRequest;
@@ -20,10 +21,13 @@ public class RegisterHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) throws Exception {
         try {
-            RegisterRequest registerRequest = ctx.bodyAsClass(RegisterRequest.class);
+            String jsonBody = ctx.body();
+            Gson gson = new Gson();
+            RegisterRequest registerRequest = gson.fromJson(jsonBody ,RegisterRequest.class);
             RegisterResult registerResult = service.register(registerRequest);
             ctx.status(200);
-            ctx.json(registerResult);
+            String jsonResponse = gson.toJson(registerResult);
+            ctx.json(jsonResponse);
         }
         catch (BadRequestException badRequestException){
             ctx.status(400);
