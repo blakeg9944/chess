@@ -5,6 +5,7 @@ import io.javalin.*;
 import model.LoginResult;
 import service.ClearService;
 import service.LoginService;
+import service.LogoutService;
 import service.RegisterService;
 
 public class Server {
@@ -34,6 +35,10 @@ public class Server {
         LoginService loginService = new LoginService(userDAO, authDAO);
         LoginHandler loginHandler = new LoginHandler(loginService);
         javalin.post("/session",loginHandler);
+        //
+        LogoutService logoutService = new LogoutService(authDAO);
+        LogoutHandler logoutHandler = new LogoutHandler(logoutService);
+        javalin.delete("/session",logoutHandler);
         return javalin.port();
     }
 
