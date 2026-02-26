@@ -23,8 +23,8 @@ public class LogoutHandler implements Handler {
     public void handle(@NotNull Context ctx) throws Exception {
         try{
             Gson gson = new Gson();
-            String jsonBody = ctx.body();
-            LogoutRequest logoutRequest = gson.fromJson(jsonBody, LogoutRequest.class);
+            String authToken = ctx.header("Authorization");
+            LogoutRequest logoutRequest = new LogoutRequest(authToken);
             service.logout(logoutRequest);
             ctx.status(200);
         }
