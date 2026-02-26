@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class LoginHandler implements Handler {
     private final LoginService service;
+    private final Gson gson = new Gson();
 
     public LoginHandler(LoginService service) {
         this.service = service;
@@ -33,15 +34,15 @@ public class LoginHandler implements Handler {
         }
         catch(BadRequestException badRequestException){
             ctx.status(400);
-            ctx.result(Map.of("message", badRequestException.getMessage()).toString());
+            ctx.result(gson.toJson(Map.of("message", "Error: bad request")));
         }
         catch(UnauthorizedException unauthorizedException){
             ctx.status(401);
-            ctx.result(Map.of("message", unauthorizedException.getMessage()).toString());
+            ctx.result(gson.toJson(Map.of("message", "Error: unauthorized")));
         }
         catch (Exception e) {
             ctx.status(500);
-            ctx.result(Map.of("message", e.getMessage()).toString());
+            ctx.result(gson.toJson(Map.of("message", "Error: (description of error)")));
         }
     }
 }
