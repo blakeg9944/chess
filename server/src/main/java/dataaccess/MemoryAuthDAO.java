@@ -18,8 +18,8 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth() throws DataAccessException {
-        authDataHashMap.clear();
+    public void deleteAuth(String authToken) throws DataAccessException {
+        authDataHashMap.remove(authToken);
 
     }
 

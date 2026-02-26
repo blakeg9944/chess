@@ -31,14 +31,13 @@ public class LoginService {
     }
 
     private void validateRequest (LoginRequest loginRequest) throws Exception {
-        if (loginRequest.password() == null || loginRequest.username() == null
-                || userDAO.getUser(loginRequest.username()) == null){
+        if (loginRequest.password() == null || loginRequest.username() == null){
             throw new BadRequestException("Error: bad request");
         }
     }
 
     private void checkPassword(LoginRequest loginRequest, UserData userData) throws Exception{
-        if (!Objects.equals(loginRequest.password(), userData.password())){
+        if (userData == null || !Objects.equals(loginRequest.password(), userData.password())){
             throw new UnauthorizedException("Error: unauthorized");
         }
     }

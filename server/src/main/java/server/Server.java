@@ -2,7 +2,9 @@ package server;
 
 import dataaccess.*;
 import io.javalin.*;
+import model.LoginResult;
 import service.ClearService;
+import service.LoginService;
 import service.RegisterService;
 
 public class Server {
@@ -28,6 +30,10 @@ public class Server {
         RegisterService registerService = new RegisterService(userDAO, authDAO);
         RegisterHandler registerHandler = new RegisterHandler(registerService);
         javalin.post("/user", registerHandler);
+        //
+        LoginService loginService = new LoginService(userDAO, authDAO);
+        LoginHandler loginHandler = new LoginHandler(loginService);
+        javalin.post("/session",loginHandler);
         return javalin.port();
     }
 

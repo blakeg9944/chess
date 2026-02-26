@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class RegisterHandler implements Handler {
     private final RegisterService service;
+    private final Gson gson = new Gson();
 
     public RegisterHandler(RegisterService service){
         this.service = service;
@@ -31,14 +32,14 @@ public class RegisterHandler implements Handler {
         }
         catch (BadRequestException badRequestException){
             ctx.status(400);
-            ctx.result(Map.of("message", badRequestException.getMessage()).toString());
+            ctx.result(gson.toJson(Map.of("message", "Error: bad request")));
         }
         catch(AlreadyTakenException alreadyTakenException){
             ctx.status(403);
-            ctx.result(Map.of("message", alreadyTakenException.getMessage()).toString());
+            ctx.result(gson.toJson(Map.of("message", "Error: already taken")));
         } catch (Exception e) {
             ctx.status(500);
-            ctx.result(Map.of("message", e.getMessage()).toString());
+            ctx.result(gson.toJson(Map.of("message", "Error: (description of error)")));
         }
 
     }
