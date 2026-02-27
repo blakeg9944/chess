@@ -2,11 +2,7 @@ package server;
 
 import dataaccess.*;
 import io.javalin.*;
-import model.LoginResult;
-import service.ClearService;
-import service.LoginService;
-import service.LogoutService;
-import service.RegisterService;
+import service.*;
 
 public class Server {
 
@@ -39,6 +35,10 @@ public class Server {
         LogoutService logoutService = new LogoutService(authDAO);
         LogoutHandler logoutHandler = new LogoutHandler(logoutService);
         javalin.delete("/session",logoutHandler);
+        //
+        CreateGameService createGameService = new CreateGameService(authDAO, gameDAO);
+        CreateGameHandler createGameHandler = new CreateGameHandler(createGameService);
+        javalin.post("/game", createGameHandler);
         return javalin.port();
     }
 

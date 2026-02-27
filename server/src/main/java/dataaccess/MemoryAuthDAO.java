@@ -1,8 +1,10 @@
 package dataaccess;
 
 import model.AuthData;
+import service.UnauthorizedException;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class MemoryAuthDAO implements AuthDAO {
     private final HashMap<String, AuthData> authDataHashMap = new HashMap<>();
@@ -25,5 +27,12 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public void clear() throws DataAccessException {
         authDataHashMap.clear();
+    }
+
+    @Override
+    public void verifyToken(String authToken, AuthData a) throws UnauthorizedException {
+        if(a == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
     }
 }
