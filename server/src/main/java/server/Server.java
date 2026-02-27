@@ -39,6 +39,10 @@ public class Server {
         CreateGameService createGameService = new CreateGameService(authDAO, gameDAO);
         CreateGameHandler createGameHandler = new CreateGameHandler(createGameService);
         javalin.post("/game", createGameHandler);
+        //
+        ListGamesService listGamesService = new ListGamesService(gameDAO, authDAO);
+        ListGamesHandler listGamesHandler = new ListGamesHandler(listGamesService);
+        javalin.get("/game", listGamesHandler);
         return javalin.port();
     }
 
