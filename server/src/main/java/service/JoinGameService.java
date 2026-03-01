@@ -25,10 +25,13 @@ public class JoinGameService {
         AuthData authData = authDAO.getAuth(authToken);
         authDAO.verifyToken(authToken, authData);
         String color = joinGameRequest.playerColor();
-        if ("WHITE".equals(color) && oldgameData.whiteUsername() != null) {
+        if (color == null || (!color.equals("WHITE") && !color.equals("BLACK"))){
+            throw new BadRequestException("Error: bad request");
+        }
+        else if ("WHITE".equals(color) && oldgameData.whiteUsername() != null) {
             throw new AlreadyTakenException("Error: already taken");
         }
-        if ("BLACK".equals(color) && oldgameData.blackUsername() != null) {
+        else if ("BLACK".equals(color) && oldgameData.blackUsername() != null) {
             throw new AlreadyTakenException("Error: already taken");
         }
         GameData newgameData = new GameData(oldgameData.gameID(),

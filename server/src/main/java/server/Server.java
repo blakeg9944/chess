@@ -66,6 +66,10 @@ public class Server {
         ListGamesService listGamesService = new ListGamesService(gameDAO, authDAO);
         ListGamesHandler listGamesHandler = new ListGamesHandler(listGamesService);
         javalin.get("/game", listGamesHandler);
+        //
+        JoinGameService joinGameService = new JoinGameService(authDAO, gameDAO);
+        JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService);
+        javalin.put("/game", joinGameHandler);
         return javalin.port();
     }
 
