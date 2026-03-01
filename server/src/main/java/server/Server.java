@@ -2,6 +2,7 @@ package server;
 
 import dataaccess.*;
 import io.javalin.*;
+import model.ErrorResponse;
 import service.*;
 
 public class Server {
@@ -13,6 +14,28 @@ public class Server {
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
+
+        javalin.exception(BadRequestException.class, (e, ctx) -> {
+            ctx.status(400);
+            ctx.json(new ErrorResponse("Error: bad request"));
+        });
+
+        javalin.exception(UnauthorizedException.class, (e, ctx) -> {
+            ctx.status(401);
+            ctx.json(new ErrorResponse("Error: unauthorized"));
+        });
+
+        javalin.exception(AlreadyTakenException.class, (e, ctx) -> {
+            ctx.status(403);
+            ctx.json(new ErrorResponse("Error: already taken"));
+        });
+
+        javalin.exception(Exception.class, (e, ctx) -> {
+            ctx.status(500);
+            ctx.json(new ErrorResponse("Error: " + e.getMessage()));
+        });
+
+
 
         // Register your endpoints and exception handlers here.
 
