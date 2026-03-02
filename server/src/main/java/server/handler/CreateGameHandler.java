@@ -1,4 +1,4 @@
-package server;
+package server.handler;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
@@ -8,10 +8,12 @@ import model.CreateGameResult;
 import org.jetbrains.annotations.NotNull;
 import service.BadRequestException;
 import service.CreateGameService;
-import service.LoginService;
 import service.UnauthorizedException;
 
 import java.util.Map;
+
+import static server.handler.Response.failure;
+import static server.handler.Response.success;
 
 public class CreateGameHandler implements Handler {
     private final CreateGameService service;
@@ -29,20 +31,10 @@ public class CreateGameHandler implements Handler {
             CreateGameRequest createGameRequest = gson.fromJson(jsonBody, CreateGameRequest.class);
             String authToken = ctx.header("Authorization");
             CreateGameResult createGameResult = service.createGame(createGameRequest, authToken);
-            String jsonResponse = gson.toJson(createGameResult);
-            ctx.result(jsonResponse);
+            success(ctx, createGameResult);
         }
-        catch(BadRequestException badRequestException){
-            ctx.status(400);
-            ctx.result(gson.toJson(Map.of("message", "Error: bad request")));
-        }
-        catch(UnauthorizedException unauthorizedException){
-            ctx.status(401);
-            ctx.result(gson.toJson(Map.of("message", "Error: unauthorized")));
-        }
-        catch (Exception e) {
-            ctx.status(500);
-            ctx.result(gson.toJson(Map.of("message", "Error: (description of error)")));
+        catch(Exception e) {
+            failure(ctx, e);
         }
     }
 }

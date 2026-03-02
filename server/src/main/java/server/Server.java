@@ -3,6 +3,7 @@ package server;
 import dataaccess.*;
 import io.javalin.*;
 import model.ErrorResponse;
+import server.handler.*;
 import service.*;
 
 public class Server {

@@ -1,32 +1,32 @@
-package server;
+package server.handler;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import model.LogoutRequest;
+import model.ListGamesRequest;
+import model.ListGamesResult;
 import org.jetbrains.annotations.NotNull;
-import service.LogoutService;
+import service.ListGamesService;
 import service.UnauthorizedException;
 
 import java.util.Map;
 
-public class LogoutHandler implements Handler {
-    private final LogoutService service;
-    Gson gson = new Gson();
+public class ListGamesHandler implements Handler {
+    private final ListGamesService service;
+    private final Gson gson = new Gson();
 
-    public LogoutHandler(LogoutService service) {
+    public ListGamesHandler(ListGamesService service) {
         this.service = service;
     }
-
 
     @Override
     public void handle(@NotNull Context ctx) throws Exception {
         try{
-            Gson gson = new Gson();
             String authToken = ctx.header("Authorization");
-            LogoutRequest logoutRequest = new LogoutRequest(authToken);
-            service.logout(logoutRequest);
-            ctx.status(200);
+            ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+            ListGamesResult listGamesResult = service.listGames(listGamesRequest);
+            String jsonResponse = gson.toJson(listGamesResult);
+            ctx.result(jsonResponse);
         }
         catch(UnauthorizedException unauthorizedException){
             ctx.status(401);

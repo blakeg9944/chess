@@ -1,17 +1,19 @@
-package server;
+package server.handler;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import model.LoginRequest;
 import model.LoginResult;
-import model.RegisterRequest;
 import org.jetbrains.annotations.NotNull;
 import service.BadRequestException;
 import service.LoginService;
 import service.UnauthorizedException;
 
 import java.util.Map;
+
+import static server.handler.Response.failure;
+import static server.handler.Response.success;
 
 public class LoginHandler implements Handler {
     private final LoginService service;
@@ -23,26 +25,15 @@ public class LoginHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context ctx) throws Exception {
-        try{
+        try {
             String jsonBody = ctx.body();
             Gson gson = new Gson();
             LoginRequest loginRequest = gson.fromJson(jsonBody, LoginRequest.class);
             LoginResult loginResult = service.login(loginRequest);
             ctx.status(200);
-            String jsonResponse = gson.toJson(loginResult);
-            ctx.result(jsonResponse);
-        }
-        catch(BadRequestException badRequestException){
-            ctx.status(400);
-            ctx.result(gson.toJson(Map.of("message", "Error: bad request")));
-        }
-        catch(UnauthorizedException unauthorizedException){
-            ctx.status(401);
-            ctx.result(gson.toJson(Map.of("message", "Error: unauthorized")));
-        }
-        catch (Exception e) {
-            ctx.status(500);
-            ctx.result(gson.toJson(Map.of("message", "Error: (description of error)")));
+            success(ctx, loginResult);
+        } catch (Exception e) {
+            failure(ctx, e);
         }
     }
 }
