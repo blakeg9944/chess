@@ -73,62 +73,6 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
-    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition){
-        List <ChessMove> moves = new ArrayList<>();
-        ChessPiece piece = board.getPiece(myPosition);
-        int startCol = myPosition.getColumn();
-        int startRow = myPosition.getRow();
-        int [][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-        for (int[] d : directions){
-            int rowDestin = d[0] + startRow;
-            int colDestin = d[1] + startCol;
-            while (ChessBoard.inBounds(rowDestin, colDestin)){
-                ChessPosition destin = new ChessPosition(rowDestin, colDestin);
-                ChessPiece destinPiece = board.getPiece(destin);
-                if (destinPiece == null){
-                    moves.add(new ChessMove(myPosition, destin, null));
-                }
-                else {
-                    if (destinPiece.getTeamColor() != piece.pieceColor){
-                        moves.add(new ChessMove(myPosition, destin, null));
-                    }
-                    break;
-                }
-                rowDestin += d[0];
-                colDestin += d[1];
-            }
-        }
-        return moves;
-    }
-
-    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition){
-        List<ChessMove> moves = new ArrayList<>();
-        int startRow = myPosition.getRow();
-        int startCol = myPosition.getColumn();
-        ChessPiece piece = board.getPiece(myPosition);
-        int [][] directions = { {1,0}, {-1,0}, {0,1}, {0,-1}};
-        for (int [] d : directions){
-            int destinRow = d[0] + startRow;
-            int destinCol = d[1] + startCol;
-            while (ChessBoard.inBounds(destinRow, destinCol)){
-                ChessPosition destin = new ChessPosition(destinRow, destinCol);
-                ChessPiece destinPiece= board.getPiece(destin);
-                if (destinPiece == null){
-                    moves.add(new ChessMove(myPosition, destin, null));
-                }
-                else{
-                    if (piece.pieceColor !=  destinPiece.getTeamColor()){
-                        moves.add(new ChessMove(myPosition, destin, null));
-                    }
-                    break;
-                }
-                destinRow += d[0];
-                destinCol += d[1];
-            }
-
-        }
-        return moves;
-    }
     private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition){
         List<ChessMove> moves = new ArrayList<>();
         int[][] directions = {{1, 2}, {1, -2},{2, 1}, {2, -1}, {-1, 2}, {-1, -2}, {-2, 1}, {-2, -1}};
@@ -150,35 +94,6 @@ public class ChessPiece {
                     }
                 }
             }
-        }
-        return moves;
-    }
-
-    private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition){
-        List<ChessMove> moves = new ArrayList<>();
-        int startRow = myPosition.getRow();
-        int startCol = myPosition.getColumn();
-        ChessPiece piece = board.getPiece(myPosition);
-        int [][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-        for (int [] d : directions){
-            int destinRow = d[0] + startRow;
-            int destinCol = d[1] + startCol;
-            while (ChessBoard.inBounds(destinRow, destinCol)){
-                ChessPosition destin = new ChessPosition(destinRow, destinCol);
-                ChessPiece destinPiece= board.getPiece(destin);
-                if (destinPiece == null){
-                    moves.add(new ChessMove(myPosition, destin, null));
-                }
-                else{
-                    if (piece.pieceColor !=  destinPiece.getTeamColor()){
-                        moves.add(new ChessMove(myPosition, destin, null));
-                    }
-                    break;
-                }
-                destinRow += d[0];
-                destinCol += d[1];
-            }
-
         }
         return moves;
     }
@@ -280,9 +195,6 @@ public class ChessPiece {
         }
     }
 
-
-
-
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         switch (type) {
             case BISHOP:
@@ -300,6 +212,65 @@ public class ChessPiece {
             default:
                 return new ArrayList<>();
         }
+    }
+
+    private Collection<ChessMove> slidingMoves(
+            ChessBoard board,
+            ChessPosition start,
+            int[][] directions) {
+
+        List<ChessMove> moves = new ArrayList<>();
+
+        for (int[] d : directions) {
+
+            int row = start.getRow() + d[0];
+            int col = start.getColumn() + d[1];
+
+            while (ChessBoard.inBounds(row, col)) {
+
+                ChessPosition dest = new ChessPosition(row, col);
+                ChessPiece target = board.getPiece(dest);
+
+                if (target == null) {
+                    moves.add(new ChessMove(start, dest, null));
+                } else {
+                    if (target.getTeamColor() != pieceColor) {
+                        moves.add(new ChessMove(start, dest, null));
+                    }
+                    break;
+                }
+
+                row += d[0];
+                col += d[1];
+            }
+        }
+
+        return moves;
+    }
+
+    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition position) {
+        int[][] directions = {
+                {1,1}, {1,-1}, {-1,1}, {-1,-1}
+        };
+
+        return slidingMoves(board, position, directions);
+    }
+
+    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition position) {
+        int[][] directions = {
+                {1,0}, {-1,0}, {0,1}, {0,-1}
+        };
+
+        return slidingMoves(board, position, directions);
+    }
+
+    private Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition position) {
+        int[][] directions = {
+                {1,0}, {-1,0}, {0,1}, {0,-1},
+                {1,1}, {1,-1}, {-1,1}, {-1,-1}
+        };
+
+        return slidingMoves(board, position, directions);
     }
 
 }
