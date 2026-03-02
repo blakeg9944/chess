@@ -165,14 +165,19 @@ public class ChessPiece {
         for (int captureCol : captureCols) {
             int captureRow = row + direction;
 
-            if (!ChessBoard.inBounds(captureRow, captureCol)) continue;
+            if (!ChessBoard.inBounds(captureRow, captureCol)) {
+                continue;
+            }
 
             ChessPosition capturePos = new ChessPosition(captureRow, captureCol);
             ChessPiece target = board.getPiece(capturePos);
 
-            if (target == null) continue;
-            if (target.getTeamColor() == pieceColor) continue;
-
+            if (target == null) {
+                continue;
+            }
+            if (target.getTeamColor() == pieceColor) {
+                continue;
+            }
             addPawnMove(moves, start, capturePos, captureRow, finalRank, promotions);
         }
 
