@@ -153,18 +153,6 @@ public class ChessGame {
             }
         }
         return true;
-        //    if NOT inCheck(currentPlayer):
-        //            return false
-        //
-        //            for each piece belonging to currentPlayer:
-        //            for each legal move of that piece:
-        //    simulate the move
-        //        if king is NOT in check after the move:
-        //    undo the move
-        //            return false  // escape exists
-        //    undo the move
-
-        //return true  // no escape → checkmate
     }
 
     /**
