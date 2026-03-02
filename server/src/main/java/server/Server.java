@@ -34,11 +34,6 @@ public class Server {
             ctx.status(500);
             ctx.json(new ErrorResponse("Error: " + e.getMessage()));
         });
-
-
-
-        // Register your endpoints and exception handlers here.
-
     }
 
     public int run(int desiredPort) {
