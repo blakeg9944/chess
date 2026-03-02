@@ -51,7 +51,7 @@ public class Server {
         LoginHandler loginHandler = new LoginHandler(loginService);
         javalin.post("/session",loginHandler);
         //
-        LogoutService logoutService = new LogoutService(authDAO);
+        LogoutService logoutService = new LogoutService(userDAO, authDAO);
         LogoutHandler logoutHandler = new LogoutHandler(logoutService);
         javalin.delete("/session",logoutHandler);
         //

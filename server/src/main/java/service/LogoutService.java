@@ -8,7 +8,7 @@ import model.LogoutRequest;
 public class LogoutService {
     private final AuthDAO authDAO;
 
-    public LogoutService(AuthDAO authDAO) {
+    public LogoutService(UserDAO userDAO, AuthDAO authDAO) {
         this.authDAO = authDAO;
     }
 
