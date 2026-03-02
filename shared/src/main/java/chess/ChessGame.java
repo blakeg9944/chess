@@ -137,22 +137,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)){
             return false;
         }
-        Map<ChessPosition, ChessPiece> myPieces;
-        myPieces = board.getPieces(teamColor);
-        for (Map.Entry<ChessPosition, ChessPiece> entry : myPieces.entrySet()) {
-            ChessPiece piece = entry.getValue();
-            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, entry.getKey());
-            for (ChessMove m: pieceMoves){
-                ChessBoard simulatedBoard = board.clone();
-                simulatedBoard.addPiece(m.getEndPosition(), piece);
-                simulatedBoard.addPiece(m.getStartPosition(), null);
-                if (!simulateisInCheck(teamColor, simulatedBoard)){
-                    return false;
-                }
-
-            }
-        }
-        return true;
+        return !hasEscapeMove(teamColor);
     }
 
     /**
@@ -163,25 +148,10 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (isInCheck(teamColor)){
+        if (isInCheck(teamColor)) {
             return false;
         }
-        Map<ChessPosition, ChessPiece> myPieces;
-        myPieces = board.getPieces(teamColor);
-        for (Map.Entry<ChessPosition, ChessPiece> entry : myPieces.entrySet()) {
-            ChessPiece piece = entry.getValue();
-            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, entry.getKey());
-            for (ChessMove m: pieceMoves){
-                ChessBoard simulatedBoard = board.clone();
-                simulatedBoard.addPiece(m.getEndPosition(), piece);
-                simulatedBoard.addPiece(m.getStartPosition(), null);
-                if (!simulateisInCheck(teamColor, simulatedBoard)){
-                    return false;
-                }
-
-            }
-        }
-        return true;
+        return !hasEscapeMove(teamColor);
     }
 
     /**
@@ -242,6 +212,24 @@ public class ChessGame {
         for (ChessMove m : enemyMoves){
             if (m.getEndPosition().equals(kingPosition)){
                 return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasEscapeMove(TeamColor teamColor){
+        Map<ChessPosition, ChessPiece> myPieces;
+        myPieces = board.getPieces(teamColor);
+        for (Map.Entry<ChessPosition, ChessPiece> entry : myPieces.entrySet()) {
+            ChessPiece piece = entry.getValue();
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, entry.getKey());
+            for (ChessMove m: pieceMoves){
+                ChessBoard simulatedBoard = board.clone();
+                simulatedBoard.addPiece(m.getEndPosition(), piece);
+                simulatedBoard.addPiece(m.getStartPosition(), null);
+                if (!simulateisInCheck(teamColor, simulatedBoard)){
+                    return true;
+                }
             }
         }
         return false;
