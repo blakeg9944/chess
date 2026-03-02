@@ -124,26 +124,7 @@ public class ChessGame {
      */
 
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition = board.getKingPosition(teamColor);
-        Map<ChessPosition, ChessPiece> enemyPieces;
-        List<ChessMove> enemyMoves = new ArrayList<>();
-        if (teamColor == TeamColor.BLACK){
-            enemyPieces = board.getPieces(TeamColor.WHITE);
-        }
-        else{
-            enemyPieces = board.getPieces(TeamColor.BLACK);
-        }
-        for (Map.Entry<ChessPosition, ChessPiece> entry : enemyPieces.entrySet()){
-            ChessPiece piece = entry.getValue();
-            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, entry.getKey()); // piece's moves
-            enemyMoves.addAll(pieceMoves); // append all moves to master list
-        }
-        for (ChessMove m : enemyMoves){
-            if (m.getEndPosition().equals(kingPosition)){
-                return true;
-            }
-        }
-        return false;
+        return simulateisInCheck(teamColor, board);
     }
 
     /**

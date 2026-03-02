@@ -133,24 +133,22 @@ public class ChessPiece {
         int row = start.getRow();
         int col = start.getColumn();
 
-        PieceType[] promotions = {
-                PieceType.QUEEN,
-                PieceType.ROOK,
-                PieceType.BISHOP,
-                PieceType.KNIGHT
-        };
-
-        /* ---------- Forward Move ---------- */
-
         int oneForward = row + direction;
         ChessPosition oneStep = new ChessPosition(oneForward, col);
 
         if (ChessBoard.inBounds(oneForward, col)
                 && board.getPiece(oneStep) == null) {
 
-            addPawnMove(moves, start, oneStep, oneForward, finalRank, promotions);
+            // Promotion
+            if (oneForward == finalRank) {
+                moves.add(new ChessMove(start, oneStep, PieceType.QUEEN));
+                moves.add(new ChessMove(start, oneStep, PieceType.ROOK));
+                moves.add(new ChessMove(start, oneStep, PieceType.BISHOP));
+                moves.add(new ChessMove(start, oneStep, PieceType.KNIGHT));
+            } else {
+                moves.add(new ChessMove(start, oneStep, null));
+            }
 
-            // Double move
             int twoForward = row + (2 * direction);
             ChessPosition twoStep = new ChessPosition(twoForward, col);
 
@@ -178,45 +176,28 @@ public class ChessPiece {
             if (target.getTeamColor() == pieceColor) {
                 continue;
             }
-            addPawnMove(moves, start, capturePos, captureRow, finalRank, promotions);
+            if (captureRow == finalRank) {
+                moves.add(new ChessMove(start, capturePos, PieceType.QUEEN));
+                moves.add(new ChessMove(start, capturePos, PieceType.ROOK));
+                moves.add(new ChessMove(start, capturePos, PieceType.BISHOP));
+                moves.add(new ChessMove(start, capturePos, PieceType.KNIGHT));
+            } else {
+                moves.add(new ChessMove(start, capturePos, null));
+            }
         }
 
         return moves;
     }
 
-    private void addPawnMove(List<ChessMove> moves,
-                             ChessPosition start,
-                             ChessPosition end,
-                             int row,
-                             int finalRank,
-                             PieceType[] promotions) {
-
-        if (row == finalRank) {
-            for (PieceType p : promotions) {
-                moves.add(new ChessMove(start, end, p));
-            }
-        } else {
-            moves.add(new ChessMove(start, end, null));
-        }
-    }
-
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
-        switch (type) {
-            case BISHOP:
-                return bishopMoves(board, position);
-            case ROOK:
-                return rookMoves(board, position);
-            case KNIGHT:
-                return knightMoves(board, position);
-            case QUEEN:
-                return queenMoves(board, position);
-            case KING:
-                return kingMoves(board, position);
-            case PAWN:
-                return pawnMoves(board, position);
-            default:
-                return new ArrayList<>();
-        }
+        return switch (type) {
+            case BISHOP -> bishopMoves(board, position);
+            case ROOK -> rookMoves(board, position);
+            case KNIGHT -> knightMoves(board, position);
+            case QUEEN -> queenMoves(board, position);
+            case KING -> kingMoves(board, position);
+            case PAWN -> pawnMoves(board, position);
+        };
     }
 
     private Collection<ChessMove> slidingMoves(
