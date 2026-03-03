@@ -11,19 +11,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LogoutServiceTest {
+public class LogoutServiceTest extends ServiceTest {
 
-    private UserDAO userDAO;
-    private AuthDAO authDAO;
     private LogoutService logoutService;
-    private RegisterService registerService;
 
     @BeforeEach
     public void setup() {
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
+        initialize();
         logoutService = new LogoutService(userDAO, authDAO);
-        registerService = new RegisterService(userDAO, authDAO);
     }
 
     @Test

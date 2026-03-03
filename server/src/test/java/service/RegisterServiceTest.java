@@ -9,15 +9,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RegisterServiceTest {
-
-        private UserDAO userDAO = new MemoryUserDAO();
-        private AuthDAO authDAO = new MemoryAuthDAO();
-        private RegisterService registerService = new RegisterService(userDAO, authDAO);
+public class RegisterServiceTest extends ServiceTest {
 
         @BeforeEach
         public void setup(){
-            registerService = new RegisterService(userDAO, authDAO);
+            initialize();
         }
 
         @Test

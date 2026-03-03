@@ -10,24 +10,12 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class JoinGameServiceTest {
-    private UserDAO userDAO;
-    private AuthDAO authDAO;
-    private GameDAO gameDAO;
-    private RegisterService registerService;
-    private CreateGameService createGameService;
-    private JoinGameService joinGameService;
+public class JoinGameServiceTest extends ServiceTest {
 
 
     @BeforeEach
     public void setup() {
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
-        gameDAO = new MemoryGameDAO();
-
-        registerService = new RegisterService(userDAO, authDAO);
-        createGameService = new CreateGameService(authDAO, gameDAO);
-        joinGameService = new JoinGameService(authDAO, gameDAO);
+        initialize();
     }
 
     @Test

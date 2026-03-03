@@ -8,28 +8,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CreateGameServiceTest {
-        private UserDAO userDAO;
-        private AuthDAO authDAO;
-        private GameDAO gameDAO;
-        private RegisterService registerService;
-        private ListGamesService listGamesService;
-        private CreateGameService createGameService;
-
+public class CreateGameServiceTest extends ServiceTest {
         @BeforeEach
         public void setup() {
-            userDAO = new MemoryUserDAO();
-            authDAO = new MemoryAuthDAO();
-            gameDAO = new MemoryGameDAO();
-            registerService = new RegisterService(userDAO, authDAO);
-            listGamesService = new ListGamesService(gameDAO, authDAO);
-            createGameService = new CreateGameService(authDAO, gameDAO);
-
+            initialize();
         }
 
         @Test
         @DisplayName("Create Game Success")
-        void CreateGameSuccess() throws Exception {
+        void createGameSuccess() throws Exception {
             RegisterRequest registerRequest =
                     new RegisterRequest("username", "password", "email@test.com");
             RegisterResult registerResult =
@@ -56,7 +43,7 @@ public class CreateGameServiceTest {
 
         @Test
         @DisplayName("Create Game Failure")
-        void CreateGameFailure() throws Exception {
+        void createGameFailure() throws Exception {
 
             CreateGameRequest request = new CreateGameRequest("game1");
             assertThrows(Exception.class, () -> {
