@@ -75,7 +75,7 @@ public class DatabaseManager {
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
     }
 
-    private static void createTables() throws Exception{
+    public static void createTables() throws Exception{
         String userTable = "CREATE TABLE IF NOT EXISTS users (" +
                 "username VARCHAR(256) PRIMARY KEY," +
                 "password VARCHAR(256) NOT NULL," +
