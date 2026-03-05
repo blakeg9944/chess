@@ -1,13 +1,8 @@
 package service;
 
-import chess.ChessGame;
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.interfaces.AuthDAO;
+import dataaccess.interfaces.GameDAO;
 import model.*;
-
-import java.util.UUID;
 
 public class CreateGameService {
     private final AuthDAO authDAO;

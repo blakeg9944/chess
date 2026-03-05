@@ -1,10 +1,11 @@
-package dataaccess;
+package dataaccess.memory;
 
+import dataaccess.interfaces.AuthDAO;
+import dataaccess.DataAccessException;
 import model.AuthData;
 import service.UnauthorizedException;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 public class MemoryAuthDAO implements AuthDAO {
     private final HashMap<String, AuthData> authDataHashMap = new HashMap<>();
