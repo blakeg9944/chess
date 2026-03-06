@@ -48,4 +48,16 @@ public class SQLUserDAO {
         return new UserData(username, password, email);
     }
 
-}
+    public void clear() throws DataAccessException {
+        String sql = "TRUNCATE TABLE users";
+
+        try(Connection connection = DatabaseManager.getConnection()){
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    }
