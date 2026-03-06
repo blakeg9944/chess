@@ -6,6 +6,7 @@ import dataaccess.interfaces.UserDAO;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
 import dataaccess.memory.MemoryUserDAO;
+import dataaccess.sql.SQLUserDAO;
 import io.javalin.*;
 import model.ErrorResponse;
 import server.handler.*;
@@ -14,7 +15,7 @@ import service.*;
 public class Server {
 
     private final Javalin javalin;
-    private final UserDAO userDAO = new MemoryUserDAO();
+    private final UserDAO userDAO = new SQLUserDAO();
     private final AuthDAO authDAO = new MemoryAuthDAO();
     private final GameDAO gameDAO = new MemoryGameDAO();
 

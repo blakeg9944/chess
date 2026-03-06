@@ -2,14 +2,16 @@ package dataaccess.sql;
 
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
+import dataaccess.interfaces.UserDAO;
 import model.UserData;
 
 import java.sql.PreparedStatement;
 
 import java.sql.*;
 
-public class SQLUserDAO {
+public class SQLUserDAO implements UserDAO {
 
+    @Override
     public void createUser(UserData user) throws DataAccessException{
         String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         try(Connection connection = DatabaseManager.getConnection()){
@@ -24,6 +26,7 @@ public class SQLUserDAO {
         }
     }
 
+    @Override
     public UserData getUser(String username){
         String statement = "SELECT username, password, email FROM users WHERE username = ?";
         try(Connection connection = DatabaseManager.getConnection()){
@@ -48,6 +51,7 @@ public class SQLUserDAO {
         return new UserData(username, password, email);
     }
 
+    @Override
     public void clear() throws DataAccessException {
         String sql = "TRUNCATE TABLE users";
 
@@ -59,5 +63,4 @@ public class SQLUserDAO {
         }
 
     }
-
     }
