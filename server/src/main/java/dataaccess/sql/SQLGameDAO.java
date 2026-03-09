@@ -9,6 +9,7 @@ import model.GameData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -37,7 +38,19 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(Integer gameID) throws DataAccessException {
-        return null;
+        String statement = "SELECT (gameID, whiteUsername, blackUsername, gameName, game) FROM games WHERE gameID = ?";
+        try(Connection connect = DatabaseManager.getConnection()) {
+            try(PreparedStatement preparedStatement = connect.prepareStatement(statement)){
+               try(ResultSet rs = preparedStatement.executeQuery()){
+                   if (rs.next()){
+                       return readGame(rs);
+                   }
+                   return null;
+               }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -52,6 +65,17 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public void clear() throws DataAccessException {
+
+    }
+
+    private GameData readGame(ResultSet rs) throws SQLException {
+        int gameID = rs.getInt("gameID");
+        String whiteUsername = rs.getString("whiteUsername");
+        String blackUsername = rs.getString("blackUsername");
+        String gameName =rs.getString("gameName");
+        var jsonGame = rs.getString("game");
+        var chessGame = new Gson().fromJson(jsonGame, chess.ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
 
     }
 }
