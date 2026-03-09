@@ -61,6 +61,5 @@ public class SQLUserDAO implements UserDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
     }

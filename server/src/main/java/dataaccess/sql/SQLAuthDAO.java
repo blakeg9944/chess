@@ -25,6 +25,7 @@ public class SQLAuthDAO implements AuthDAO {
             PreparedStatement preparedStatement = connection.prepareStatement(statement);
             preparedStatement.setString(1, a.authToken());
             preparedStatement.setString(2, a.username());
+            preparedStatement.executeUpdate();
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
@@ -51,17 +52,37 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-
+        var statement = "DELETE FROM auth WHERE authtoken=?";
+        try(Connection connection = DatabaseManager.getConnection()){
+            PreparedStatement preparedStatement = connection.prepareStatement(statement);
+            preparedStatement.setString(1, authToken);
+            preparedStatement.executeUpdate();
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
-
+        String sql = "TRUNCATE TABLE auth";
+        try(Connection connection = DatabaseManager.getConnection()){
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void verifyToken(String authToken, AuthData a) throws UnauthorizedException {
-
+        try{
+            if(getAuth(authToken) == null){
+                throw new UnauthorizedException("Error: unauthorized");
+            }
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
