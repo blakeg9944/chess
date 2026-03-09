@@ -75,13 +75,24 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData g) throws DataAccessException {
-
+        String statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
+        try(Connection connection = DatabaseManager.getConnection()) {
+            try(PreparedStatement preparedStatement = connection.prepareStatement(statement)){
+                preparedStatement.setString(1, g.whiteUsername());
+                preparedStatement.setString(2, g.blackUsername());
+                preparedStatement.setString(3, g.gameName());
+                preparedStatement.setString(4, new Gson().toJson(g.game()));
+                preparedStatement.setInt(5, g.gameID());
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
         String sql = "TRUNCATE TABLE games";
-
         try(Connection connection = DatabaseManager.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
