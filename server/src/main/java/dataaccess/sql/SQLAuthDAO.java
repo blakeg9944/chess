@@ -3,18 +3,14 @@ package dataaccess.sql;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.interfaces.AuthDAO;
-import dataaccess.interfaces.GameDAO;
 import model.AuthData;
-import model.GameData;
-import model.UserData;
 import service.UnauthorizedException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
+
 
 public class SQLAuthDAO implements AuthDAO {
 
