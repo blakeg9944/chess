@@ -6,6 +6,7 @@ import model.AuthData;
 import model.LoginRequest;
 import model.LoginResult;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public class LoginService {
     }
 
     private void checkPassword(LoginRequest loginRequest, UserData userData) throws Exception{
-        if (userData == null || !Objects.equals(loginRequest.password(), userData.password())){
+        if (userData == null || !BCrypt.checkpw(loginRequest.password(), userData.password())){
             throw new UnauthorizedException("Error: unauthorized");
         }
     }

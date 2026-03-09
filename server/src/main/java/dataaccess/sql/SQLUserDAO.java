@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.interfaces.UserDAO;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.PreparedStatement;
 
@@ -14,20 +15,21 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public void createUser(UserData user) throws DataAccessException{
         String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        String encryptPass = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         try(Connection connection = DatabaseManager.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(statement);
             preparedStatement.setString(1, user.username());
-            preparedStatement.setString(2, user.password());
+            preparedStatement.setString(2, encryptPass);
             preparedStatement.setString(3, user.email());
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
 
     @Override
-    public UserData getUser(String username){
+    public UserData getUser(String username) throws DataAccessException {
         String statement = "SELECT username, password, email FROM users WHERE username = ?";
         try(Connection connection = DatabaseManager.getConnection()){
             try (PreparedStatement ps = connection.prepareStatement(statement)) {
@@ -40,7 +42,7 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
 
@@ -59,7 +61,7 @@ public class SQLUserDAO implements UserDAO {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
     }

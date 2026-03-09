@@ -33,7 +33,7 @@ public class SQLGameDAO implements GameDAO {
             preparedStatement.executeUpdate();
             return sqlGameInt;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
 
@@ -51,7 +51,7 @@ public class SQLGameDAO implements GameDAO {
                }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
 
@@ -68,7 +68,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error: " + e.getMessage());
         }
         return endList;
     }
@@ -86,7 +86,7 @@ public class SQLGameDAO implements GameDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
 
@@ -97,7 +97,7 @@ public class SQLGameDAO implements GameDAO {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Error: " + e.getMessage());
         }
     }
 
