@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class SQLGameDAO implements GameDAO {
     private int sqlGameInt = 1;
@@ -32,7 +31,7 @@ public class SQLGameDAO implements GameDAO {
             preparedStatement.setString(5, gameJson);
             preparedStatement.executeUpdate();
             return sqlGameInt;
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }
@@ -50,7 +49,7 @@ public class SQLGameDAO implements GameDAO {
                    return null;
                }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }
@@ -67,7 +66,7 @@ public class SQLGameDAO implements GameDAO {
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
         return endList;
@@ -85,7 +84,7 @@ public class SQLGameDAO implements GameDAO {
                 preparedStatement.setInt(5, g.gameID());
                 preparedStatement.executeUpdate();
             }
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }
@@ -96,7 +95,7 @@ public class SQLGameDAO implements GameDAO {
         try(Connection connection = DatabaseManager.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }

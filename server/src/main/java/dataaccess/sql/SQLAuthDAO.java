@@ -23,7 +23,7 @@ public class SQLAuthDAO implements AuthDAO {
             preparedStatement.setString(2, a.username());
             preparedStatement.executeUpdate();
         }
-        catch (SQLException e) {
+        catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }
@@ -41,7 +41,7 @@ public class SQLAuthDAO implements AuthDAO {
                     return null;
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }
@@ -54,7 +54,7 @@ public class SQLAuthDAO implements AuthDAO {
             preparedStatement.setString(1, authToken);
             preparedStatement.executeUpdate();
         }
-        catch (SQLException e) {
+        catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }
@@ -65,7 +65,7 @@ public class SQLAuthDAO implements AuthDAO {
         try(Connection connection = DatabaseManager.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }

@@ -23,7 +23,7 @@ public class SQLUserDAO implements UserDAO {
             preparedStatement.setString(3, user.email());
             preparedStatement.executeUpdate();
 
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }
@@ -56,11 +56,10 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public void clear() throws DataAccessException {
         String sql = "TRUNCATE TABLE users";
-
         try(Connection connection = DatabaseManager.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
     }
