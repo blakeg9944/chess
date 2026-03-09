@@ -3,13 +3,11 @@ package server;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
 import dataaccess.interfaces.UserDAO;
-import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
-import dataaccess.memory.MemoryUserDAO;
 import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
 import io.javalin.*;
-import model.ErrorResponse;
 import server.handler.*;
 import service.*;
 
@@ -18,7 +16,7 @@ public class Server {
     private final Javalin javalin;
     private final UserDAO userDAO = new SQLUserDAO();
     private final AuthDAO authDAO = new SQLAuthDAO();
-    private final GameDAO gameDAO = new MemoryGameDAO();
+    private final GameDAO gameDAO = new SQLGameDAO();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
