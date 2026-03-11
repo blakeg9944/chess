@@ -1,5 +1,8 @@
 package server;
 
+import chess.ChessGame;
+import chess.ChessPiece;
+import dataaccess.DatabaseManager;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
 import dataaccess.interfaces.UserDAO;
@@ -11,6 +14,9 @@ import io.javalin.*;
 import server.handler.*;
 import service.*;
 
+import static dataaccess.DatabaseManager.createDatabase;
+import static dataaccess.DatabaseManager.createTables;
+
 public class Server {
 
     private final Javalin javalin;
@@ -20,6 +26,14 @@ public class Server {
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        try {
+            createDatabase();
+            createTables();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            System.err.println("Uhh oh! Your Server is Cooked!");
+        }
     }
 
     public int run(int desiredPort) {

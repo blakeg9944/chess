@@ -6,8 +6,7 @@ import dataaccess.*;
 public class ServerMain {
     public static void main(String[] args) {
         try {
-            DatabaseManager.createDatabase();
-            DatabaseManager.createTables();
+
             System.out.println("Database and tables ready!");
 
             Server server = new Server();
