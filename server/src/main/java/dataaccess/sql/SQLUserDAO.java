@@ -16,11 +16,12 @@ public class SQLUserDAO implements UserDAO {
     public void createUser(UserData user) throws DataAccessException{
         String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         try(Connection connection = DatabaseManager.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement(statement);
-            preparedStatement.setString(1, user.username());
-            preparedStatement.setString(2, user.password());
-            preparedStatement.setString(3, user.email());
-            preparedStatement.executeUpdate();
+            try(PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, user.username());
+                preparedStatement.setString(2, user.password());
+                preparedStatement.setString(3, user.email());
+                preparedStatement.executeUpdate();
+            }
 
         } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
@@ -56,8 +57,9 @@ public class SQLUserDAO implements UserDAO {
     public void clear() throws DataAccessException {
         String sql = "TRUNCATE TABLE users";
         try(Connection connection = DatabaseManager.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.executeUpdate();
+            try(PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }

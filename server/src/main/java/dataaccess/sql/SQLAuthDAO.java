@@ -18,10 +18,11 @@ public class SQLAuthDAO implements AuthDAO {
     public void createAuth(AuthData a) throws DataAccessException {
         String statement = "INSERT INTO auth (authtoken, username) VALUES (?, ?)";
         try(Connection connection = DatabaseManager.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(statement);
-            preparedStatement.setString(1, a.authToken());
-            preparedStatement.setString(2, a.username());
-            preparedStatement.executeUpdate();
+            try(PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, a.authToken());
+                preparedStatement.setString(2, a.username());
+                preparedStatement.executeUpdate();
+            }
         }
         catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
@@ -50,9 +51,10 @@ public class SQLAuthDAO implements AuthDAO {
     public void deleteAuth(String authToken) throws DataAccessException {
         var statement = "DELETE FROM auth WHERE authtoken=?";
         try(Connection connection = DatabaseManager.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement(statement);
-            preparedStatement.setString(1, authToken);
-            preparedStatement.executeUpdate();
+            try(PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                preparedStatement.executeUpdate();
+            }
         }
         catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
@@ -63,8 +65,9 @@ public class SQLAuthDAO implements AuthDAO {
     public void clear() throws DataAccessException {
         String sql = "TRUNCATE TABLE auth";
         try(Connection connection = DatabaseManager.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.executeUpdate();
+            try(PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+                preparedStatement.executeUpdate();
+            }
         } catch (SQLException | DataAccessException e) {
             throw new DataAccessException("Error: " + e.getMessage());
         }
