@@ -15,11 +15,10 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public void createUser(UserData user) throws DataAccessException{
         String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        String encryptPass = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         try(Connection connection = DatabaseManager.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(statement);
             preparedStatement.setString(1, user.username());
-            preparedStatement.setString(2, encryptPass);
+            preparedStatement.setString(2, user.password());
             preparedStatement.setString(3, user.email());
             preparedStatement.executeUpdate();
 

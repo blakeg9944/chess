@@ -92,6 +92,7 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public void clear() throws DataAccessException {
         String sql = "TRUNCATE TABLE games";
+        sqlGameInt = 0;
         try(Connection connection = DatabaseManager.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
