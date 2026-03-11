@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SQLUserDAOTests {
+public class SQLUserDAOTest {
     private final UserDAO userDAO = new SQLUserDAO();
 
 

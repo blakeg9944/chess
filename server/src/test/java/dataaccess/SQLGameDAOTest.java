@@ -10,7 +10,7 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SQLGameDAOTests {
+public class SQLGameDAOTest {
 
     private SQLGameDAO gameDAO;
 

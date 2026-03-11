@@ -3,11 +3,10 @@ package dataaccess;
 import dataaccess.sql.SQLAuthDAO;
 import model.AuthData;
 import org.junit.jupiter.api.*;
-import service.UnauthorizedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SQLAuthDAOTests {
+public class SQLAuthDAOTest {
 
     private SQLAuthDAO authDAO;
 
