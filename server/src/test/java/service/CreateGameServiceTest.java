@@ -12,6 +12,7 @@ public class CreateGameServiceTest extends ServiceTest {
         @BeforeEach
         public void setup() {
             initialize();
+
         }
 
         @Test

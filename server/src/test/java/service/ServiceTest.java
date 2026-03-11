@@ -3,9 +3,6 @@ package service;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
 import dataaccess.interfaces.UserDAO;
-import dataaccess.memory.MemoryAuthDAO;
-import dataaccess.memory.MemoryGameDAO;
-import dataaccess.memory.MemoryUserDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
@@ -22,9 +19,17 @@ public abstract class ServiceTest {
     protected ListGamesService listGamesService;
 
     protected void initialize() {
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
-        gameDAO = new MemoryGameDAO();
+        userDAO =  new SQLUserDAO();
+        authDAO = new SQLAuthDAO();
+        gameDAO = new SQLGameDAO();
+
+        try {
+            userDAO.clear();
+            authDAO.clear();
+            gameDAO.clear();
+        } catch (Exception e) {
+            System.out.println("Error clearing database: " + e.getMessage());
+        }
 
         registerService = new RegisterService(userDAO, authDAO);
         createGameService = new CreateGameService(authDAO, gameDAO);
