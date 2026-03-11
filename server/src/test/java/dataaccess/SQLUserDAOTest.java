@@ -58,16 +58,11 @@ public class SQLUserDAOTest {
     }
 
     @Test
-    @DisplayName("Negative: Create Duplicate User")
-    void getUserDuplicate() throws DataAccessException {
-        UserData firstUser = new UserData("duplicate_me", "pass1", "one@test.com");
-        UserData repeatUser = new UserData("duplicate_me", "pass2", "two@test.com");
+    @DisplayName("Negative: Get Nonexistent User")
+    void getUserNotFound() throws DataAccessException {
+        UserData user = userDAO.getUser("ghost");
 
-        userDAO.createUser(firstUser);
-
-        assertThrows(DataAccessException.class, () -> {
-            userDAO.createUser(repeatUser);
-        }, "should throw a DataAccessException");
+        assertNull(user, "User should not exist in the database.");
     }
 
     @Test
@@ -76,11 +71,13 @@ public class SQLUserDAOTest {
         UserData newUser = new UserData("user", "password", "email");
         UserData newUser1 = new UserData("user1", "password1", "email1");
 
+        userDAO.createUser(newUser);
+        userDAO.createUser(newUser1);
+
         userDAO.clear();
 
-        assertNull(userDAO.getUser("user"), "Database should be empty after clear()");
-        assertNull(userDAO.getUser("user1"), "Database should be empty after clear()");
-
+        assertNull(userDAO.getUser("user"));
+        assertNull(userDAO.getUser("user1"));
     }
 
 }
