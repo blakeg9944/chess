@@ -47,14 +47,14 @@ public class SQLUserDAOTest {
     @Test
     @DisplayName("Get User Successfully")
     void getUserSuccess() throws DataAccessException {
-        UserData newUser = new UserData("user", "password", "email");
+        UserData newUser = new UserData("blake", "blake1", "blake@email.com");
 
         userDAO.createUser(newUser);
 
-        UserData user = userDAO.getUser("user");
+        UserData user = userDAO.getUser("blake");
 
-        assertNotNull(user, "User should be found in the database.");
-        assertEquals("user", user.username());
+        assertEquals("blake1", user.password());
+        assertEquals("blake@email.com", user.email());
     }
 
     @Test
