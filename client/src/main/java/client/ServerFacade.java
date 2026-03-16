@@ -76,12 +76,12 @@ public class ServerFacade {
         }
     }
 
-    public JoinGameResult joinGame(JoinGameRequest request, String authToken) throws Exception{
+    public void joinGame(JoinGameRequest request, String authToken) throws Exception{
         HttpURLConnection http = createURLandConnection("/game", "PUT", authToken);
         writeBody(request, http);
         http.connect();
         if(http.getResponseCode() == 200){
-            return readBody(http, JoinGameResult.class);
+            readBody(http, JoinGameResult.class);
         }
         else{
             throw new Exception("Error: " + http.getResponseCode());
@@ -122,6 +122,14 @@ public class ServerFacade {
             return new Gson().fromJson(reader, tClass);
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    public void clear() throws Exception {
+        var http = createURLandConnection("/db", "DELETE", null);
+        http.connect();
+        if (http.getResponseCode() != 200) {
+            throw new Exception("Clear failed");
         }
     }
 }
