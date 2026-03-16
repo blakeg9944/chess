@@ -3,6 +3,7 @@ package client;
 import com.google.gson.Gson;
 import model.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -17,25 +18,13 @@ public class ServerFacade {
     }
 
     public LoginResult login(LoginRequest request) throws Exception {
-        // 1. Create URL and Connection
-        URL url = new URI(serverUrl + "/session").toURL();
-        HttpURLConnection http = (HttpURLConnection) url.openConnection();
-        // 2. Set Method to "POST"
-        http.setRequestMethod("POST");
-        http.setDoOutput(true);
+        var http = createURLandConnection("/session", "POST", null);
         // 3. Write JSON request body
-        try(var outputStream = http.getOutputStream()){
-            var jsonBody = new Gson().toJson(request);
-            outputStream.write(jsonBody.getBytes());
-        }
+        writeBody(request, http);
         http.connect();
         // 4. Read JSON response body
         if (http.getResponseCode() == 200){
-            try (InputStream responseBody = http.getInputStream()){
-                InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                // 5. Return the Result object
-                return new Gson().fromJson(inputStreamReader, LoginResult.class);
-            }
+            return readBody(http, LoginResult.class);
         }
         else{
             throw new Exception("Error: " + http.getResponseCode());
@@ -43,33 +32,19 @@ public class ServerFacade {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws Exception{
-        URL url = new URI(serverUrl + "/user").toURL();
-        HttpURLConnection http = (HttpURLConnection) url.openConnection();
-        // 2. Set Method to "POST"
-        http.setRequestMethod("POST");
-        http.setDoOutput(true);
-        try(var outputStream = http.getOutputStream()){
-            var jsonBody = new Gson().toJson(registerRequest);
-            outputStream.write(jsonBody.getBytes());
-        }
+        var http = createURLandConnection("/user", "POST", null);
+        writeBody(registerRequest, http);
         http.connect();
         if (http.getResponseCode() == 200){
-            try (InputStream responseBody = http.getInputStream()){
-                InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                // 5. Return the Result object
-                return new Gson().fromJson(inputStreamReader, RegisterResult.class);
-            }
+            return readBody(http, RegisterResult.class);
         }
         else{
             throw new Exception("Error: " + http.getResponseCode());
         }
     }
 
-    public void logout(String authToken) throws Exception{
-        URL url = new URI(serverUrl + "/session").toURL();
-        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-        httpURLConnection.setRequestMethod("DELETE");
-        httpURLConnection.setRequestProperty("authorization", authToken);
+    public void logout(LogoutRequest logoutRequest) throws Exception{
+        var httpURLConnection = createURLandConnection("/session", "DELETE", logoutRequest.authToken());
         httpURLConnection.connect();
         if(httpURLConnection.getResponseCode() != 200) {
             throw new Exception("Logout failed: " + httpURLConnection.getResponseCode());
@@ -77,28 +52,76 @@ public class ServerFacade {
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws Exception{
-        // 1. Create URL and Connection
-        URL url = new URI(serverUrl + "/game").toURL();
-        HttpURLConnection http = (HttpURLConnection) url.openConnection();
-        // 2. Set Method to "POST"
-        http.setRequestMethod("GET");
-        http.setDoOutput(true);
+        var http = createURLandConnection("/game", "GET", listGamesRequest.authToken());
         // 3. Write JSON request body
-        try(var outputStream = http.getOutputStream()){
-            var jsonBody = new Gson().toJson(listGamesRequest);
-            outputStream.write(jsonBody.getBytes());
-        }
         http.connect();
         // 4. Read JSON response body
         if (http.getResponseCode() == 200){
-            try (InputStream responseBody = http.getInputStream()){
-                InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                // 5. Return the Result object
-                return new Gson().fromJson(inputStreamReader, ListGamesResult.class);
-            }
+            return readBody(http, ListGamesResult.class);
         }
         else{
             throw new Exception("Error: " + http.getResponseCode());
+        }
+    }
+
+    public CreateGameResult createGame(CreateGameRequest request, String authToken) throws Exception{
+        HttpURLConnection http = createURLandConnection("/game", "POST", authToken);
+        writeBody(request, http);
+        http.connect();
+        if(http.getResponseCode() == 200){
+            return readBody(http, CreateGameResult.class);
+        }
+        else{
+            throw new Exception("Error: " + http.getResponseCode());
+        }
+    }
+
+    public JoinGameResult joinGame(JoinGameRequest request, String authToken) throws Exception{
+        HttpURLConnection http = createURLandConnection("/game", "PUT", authToken);
+        writeBody(request, http);
+        http.connect();
+        if(http.getResponseCode() == 200){
+            return readBody(http, JoinGameResult.class);
+        }
+        else{
+            throw new Exception("Error: " + http.getResponseCode());
+        }
+    }
+
+    private HttpURLConnection createURLandConnection(String path, String method, String authToken) throws Exception{
+        // 1. Create URL and Connection
+        URL url = new URI(serverUrl + path).toURL();
+        HttpURLConnection http = (HttpURLConnection) url.openConnection();
+        // 2. Set Method to "POST"
+        http.setRequestMethod(method);
+        if (authToken != null && !authToken.isEmpty()){
+            http.setRequestProperty("authorization", authToken);
+        }
+        if (method.equals("POST") || method.equals("PUT")) {
+            http.setDoOutput(true);
+            http.setRequestProperty("Content-Type", "application/json");
+        }
+
+        return http;
+
+    }
+
+    private void writeBody(Object request, HttpURLConnection http) throws IOException {
+        if (request != null) {
+            http.setDoOutput(true);
+            try (var outputStream = http.getOutputStream()) {
+                var jsonBody = new Gson().toJson(request);
+                outputStream.write(jsonBody.getBytes());
+            }
+        }
+    }
+
+    private <T> T readBody(HttpURLConnection http, Class<T> tClass) throws Exception{
+        try (InputStream respBody = http.getInputStream()) {
+            InputStreamReader reader = new InputStreamReader(respBody);
+            return new Gson().fromJson(reader, tClass);
+        } catch (IOException e) {
+            return null;
         }
     }
 }
