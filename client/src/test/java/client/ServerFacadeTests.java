@@ -1,6 +1,5 @@
 import client.ServerFacade;
-import model.LoginRequest;
-import model.RegisterRequest;
+import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 
@@ -61,6 +60,60 @@ public class ServerFacadeTests {
             facade.login(new LoginRequest("user", "password"));
         });
     }
+
+    @Test
+    void logoutPositive() throws Exception{
+        RegisterResult res = facade.register(new RegisterRequest("user", "password", "email@email.com"));
+        facade.logout(new LogoutRequest(res.authToken()));
+        Assertions.assertThrows(Exception.class, () -> {
+            facade.listGames(new ListGamesRequest(res.authToken()));
+        });
+    }
+
+    @Test
+    void logoutNegative() throws Exception{
+        Assertions.assertThrows(Exception.class, () -> {
+            facade.logout(new LogoutRequest("fake"));
+        });
+    }
+
+    @Test
+    void listGamesPositive() throws Exception{
+        RegisterResult res = facade.register(new RegisterRequest("user", "password", "email@email.com"));
+        String token = res.authToken();
+
+        // 2. Create 3 different games
+        facade.createGame(new CreateGameRequest("Game 1"), token);
+        facade.createGame(new CreateGameRequest("Game 2"), token);
+        facade.createGame(new CreateGameRequest("Game 3"), token);
+        var result = facade.listGames(new ListGamesRequest(res.authToken()));
+        Assertions.assertNotNull(result.games(), "The games collection should not be null");
+        Assertions.assertEquals(3, result.games().size(), "Should have exactly 3 games");
+    }
+
+    @Test
+    void listGamesNegative() throws Exception{
+        Assertions.assertThrows(Exception.class, () -> {
+            facade.listGames(new ListGamesRequest("fake"));
+        });
+    }
+
+    @Test
+    void createGamesPositive() throws  Exception{
+        RegisterResult result = facade.register(new RegisterRequest("username", "pass", "not@email.com"));
+        String token = result.authToken();
+        facade.createGame(new CreateGameRequest("Game 1"), token);
+        Assertions.assertNotNull(facade.listGames(new ListGamesRequest(result.authToken())));
+    }
+
+    @Test
+    void createGamesNegative() throws  Exception{
+        Assertions.assertThrows(Exception.class, () -> {
+            facade.listGames(new ListGamesRequest("notReal"));
+        });
+    }
+
+
 
 
 }
