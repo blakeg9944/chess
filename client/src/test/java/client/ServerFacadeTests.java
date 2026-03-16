@@ -113,7 +113,29 @@ public class ServerFacadeTests {
         });
     }
 
+    @Test
+    void joinGamesPositive() throws  Exception{
+        RegisterResult result = facade.register(new RegisterRequest("username", "pass", "not@email.com"));
+        String token = result.authToken();
+        CreateGameResult createGameResult = facade.createGame(new CreateGameRequest("Game 1"), token);
+        facade.joinGame(new JoinGameRequest("WHITE", createGameResult.gameID()), token);
+        var listResult = facade.listGames(new ListGamesRequest(token));
 
+        // Find the game we just joined in the list
+        var joinedGame = listResult.games().stream()
+                .filter(g -> g.gameID() == createGameResult.gameID())
+                .findFirst()
+                .orElse(null);
 
+        Assertions.assertNotNull(joinedGame);
+        Assertions.assertEquals("username", joinedGame.whiteUsername());
+        Assertions.assertNotNull(facade.listGames(new ListGamesRequest(result.authToken())));
+    }
 
+    @Test
+    void joinGamesNegative() throws  Exception{
+        Assertions.assertThrows(Exception.class, () -> {
+            facade.listGames(new ListGamesRequest("notReal"));
+        });
+    }
 }
