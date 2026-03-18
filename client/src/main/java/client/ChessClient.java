@@ -1,5 +1,8 @@
 package client;
 
+import model.LoginRequest;
+import model.LoginResult;
+
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -13,7 +16,7 @@ public class ChessClient {
         this.facade = new ServerFacade(serverURL);
     }
 
-    public void run(){
+    public void run() throws Exception {
         System.out.println("Welcome to Chess! Type 'Help' to begin.");
         Scanner scanner = new Scanner(System.in);
         String result = '';
@@ -61,8 +64,16 @@ public class ChessClient {
 
     }
 
-    private void login(String username, String password){
-
+    private String login(String[] params) throws Exception {
+        if(params.length == 2){
+            String username = params[0];
+            String password = params[1];
+            LoginRequest loginRequest = new LoginRequest(username, password);
+            LoginResult loginResult = facade.login(loginRequest);
+            this.authToken = loginResult.authToken();
+            return String.format("Now logged in as %s", username);
+        }
+        throw new Exception("Expected: <USERNAME> <PASSWORD>");
     }
 
     private void register(String username, String password, String email){
