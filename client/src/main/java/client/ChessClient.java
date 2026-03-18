@@ -52,10 +52,10 @@ public class ChessClient {
     public String help2() {
         return """
             logout - to logout of account
-            creategame <GAMENAME> - to create a game for you and a friend
-            listgame - lists all current games
-            playgame- only valid once game has been created. if so, hop into competition!
-            observegame- watch your friends play chess
+            create <GAMENAME> - to create a game for you and a friend
+            list - lists all current games
+            play- <NUMBER> [WHITE|BLACK] only valid once game has been created. if so, hop into competition! 
+            observe- watch your friends play chess
             quit - playing chess
             help - with possible commands
             """;
@@ -140,19 +140,23 @@ public class ChessClient {
         return result.toString();
     }
 
-    private String joinGame(String[] params) throws Exception{
-        if (params.length == 2){
+    private String joinGame(String[] params) throws Exception {
+        if (params.length < 2) {
+            throw new Exception("Expected: <NUMBER> [WHITE|BLACK]");
+        }
+        try {
             String displayName = params[0];
-            try {
-                int gameId = Integer.parseInt(params[0]);
-                String color = params[1];
-                JoinGameRequest request = new JoinGameRequest(color, gameId);
-                facade.joinGame(request, authToken);
-                return "board";
-            } catch (NumberFormatException e) {
-                System.out.println("Error: Provide # of game.");
-                return null;
+            int gameIndex = Integer.parseInt(params[0]) - 1;
+            if (gameIndex >= lastGames.size() || gameIndex < 0) {
+                throw new Exception("Check your game number OR make sure list has been run )");
             }
+            GameData game = lastGames.get(gameIndex);
+            String color = params[1].toUpperCase();
+            JoinGameRequest request = new JoinGameRequest(color, game.gameID());
+            facade.joinGame(request, authToken);
+            return String.format("Success! You have joined %s as %s. Configuring board", game.gameName(), color);
+        } catch (NumberFormatException e) {
+            throw new Exception("The first argument must be a number.");
         }
     }
 

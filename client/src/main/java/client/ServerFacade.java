@@ -115,15 +115,28 @@ public class ServerFacade {
             }
         }
     }
+    private <T> T readBody(HttpURLConnection http, Class<T> tClass) throws Exception {
+        // Check if the response is successful
+        InputStream is = (http.getResponseCode() == 200) ? http.getInputStream() : http.getErrorStream();
 
-    private <T> T readBody(HttpURLConnection http, Class<T> tClass) throws Exception{
-        try (InputStream respBody = http.getInputStream()) {
-            InputStreamReader reader = new InputStreamReader(respBody);
+        if (is == null) return null; // No body returned
+
+        try (InputStreamReader reader = new InputStreamReader(is)) {
             return new Gson().fromJson(reader, tClass);
-        } catch (IOException e) {
-            return null;
+        } catch (Exception e) {
+            throw new Exception("Failed to parse server response: " + e.getMessage());
         }
     }
+
+//    private <T> T readBody(HttpURLConnection http, Class<T> tClass) throws Exception{
+//        try (InputStream respBody = http.getInputStream()) {
+//            InputStreamReader reader = new InputStreamReader(respBody);
+//            return new Gson().fromJson(reader, tClass);
+//        } catch (IOException e) {
+//            return null;
+//        }
+//    }
+
 
     public void clear() throws Exception {
         var http = createURLandConnection("/db", "DELETE", null);
