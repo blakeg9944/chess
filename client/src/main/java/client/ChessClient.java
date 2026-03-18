@@ -34,13 +34,28 @@ public class ChessClient {
             } else {
                 result = postLoginEval(cmd, params);
             }
+            if (!result.equals("quit")) {
+                System.out.println(result);
+            }
         }
     }
 
-    public String help() {
+    public String help1() {
         return """
             register <USERNAME> <PASSWORD> <EMAIL> - to create an account
             login <USERNAME> <PASSWORD> - to play chess
+            quit - playing chess
+            help - with possible commands
+            """;
+    }
+
+    public String help2() {
+        return """
+            logout - to logout of account
+            creategame <GAMENAME> - to create a game for you and a friend
+            listgame - lists all current games
+            playgame- only valid once game has been created. if so, hop into competition!
+            observegame- watch your friends play chess
             quit - playing chess
             help - with possible commands
             """;
@@ -52,7 +67,7 @@ public class ChessClient {
                 case "login" -> login(params);
                 case "register" -> register(params);
                 case "quit" -> "quit";
-                default -> help();
+                default -> help1();
             };
         } catch (Exception e) {
             return e.getMessage();
@@ -63,10 +78,12 @@ public class ChessClient {
         try {
             return switch (command) {
                 case "logout" -> logout();
-                case "list games" -> login(params);
-                case "join game" -> register(params);
-                case "create game" -> "quit";
-                default -> help();
+                case "list" -> listGames();
+                case "play" -> joinGame(params);
+                case "create" -> createGame(params);
+                case "quit" -> "quit";
+                case "observe" -> "filler";
+                default -> help2();
             };
         } catch (Exception e) {
             return e.getMessage();
@@ -95,7 +112,7 @@ public class ChessClient {
             this.authToken = registerResult.authToken();
             return String.format("Now registered as %s", username);
         }
-        throw new Exception("Expected: <USERNAME> <PASSWORD> <EMAIL>");
+        throw new Exception("Expected: register <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     private String logout() throws Exception {
@@ -121,5 +138,36 @@ public class ChessClient {
                     i + 1, game.gameName(), displayWhite, displayBlack));
         }
         return result.toString();
+    }
+
+    private String joinGame(String[] params) throws Exception{
+        if (params.length == 2){
+            String displayName = params[0];
+            try {
+                int gameId = Integer.parseInt(params[0]);
+                String color = params[1];
+                JoinGameRequest request = new JoinGameRequest(color, gameId);
+                facade.joinGame(request, authToken);
+                return "board";
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Provide # of game.");
+                return null;
+            }
+        }
+    }
+
+    private String createGame(String[] params) throws Exception {
+        if (params.length >= 1){
+            String gameName = params[0];
+            CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
+            facade.createGame(createGameRequest, authToken);
+            return String.format("Game %s created", gameName);
+
+        }
+        throw new Exception("Expected: create <GAMENAME>");
+    }
+
+    private String showBoard(){
+        return null;
     }
 }
