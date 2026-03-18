@@ -2,14 +2,14 @@ package client;
 
 import model.*;
 
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class ChessClient {
 
     private String authToken = null;
     private final ServerFacade facade;
+    private List<GameData> lastGames = new ArrayList<>();
 
     public ChessClient(String serverURL) {
         this.facade = new ServerFacade(serverURL);
@@ -103,5 +103,23 @@ public class ChessClient {
         facade.logout(logoutRequest);
         this.authToken = null;
         return "Now logged out";
+    }
+
+    private String listGames() throws Exception{
+        ListGamesRequest listGamesRequest = new ListGamesRequest(this.authToken);
+        ListGamesResult listGamesResult = facade.listGames(listGamesRequest);
+        var result = new StringBuilder();
+        this.lastGames = new ArrayList<>(listGamesResult.games());
+        if (lastGames.isEmpty()){
+            return "There are no games";
+        }
+        for (int i = 0; i < lastGames.size(); i++ ){
+            var game = lastGames.get(i);
+            String displayWhite = (game.whiteUsername() == null) ? "---" : game.whiteUsername();
+            String displayBlack = (game.blackUsername() == null) ? "---" : game.blackUsername();
+            result.append(String.format("%d. %s (W: %s, B: %s)\n",
+                    i + 1, game.gameName(), displayWhite, displayBlack));
+        }
+        return result.toString();
     }
 }
