@@ -158,7 +158,7 @@ public class ChessClient {
         try {
             int gameIndex = Integer.parseInt(params[0]) - 1;
             if (gameIndex >= lastGames.size() || gameIndex < 0) {
-                throw new Exception("Check your game number OR make sure list has been run )");
+                throw new Exception("Check your game number OR make sure list has been run");
             }
             GameData game = lastGames.get(gameIndex);
             String color = params[1].toUpperCase();
