@@ -1,10 +1,11 @@
-import client.ServerFacade;
+package client;
+
 import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 
 
-public class ServerFacadeTests {
+public class ServerFacadeTest {
 
     private static Server server;
     private static ServerFacade facade;
