@@ -29,18 +29,13 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
-    }
-
-    @Test
-    void registerPositive() throws Exception {
+    public void registerPositive() throws Exception {
         var result = facade.register(new RegisterRequest("player1", "password", "p1@email.com"));
         Assertions.assertNotNull(result.authToken());
     }
 
     @Test
-    void registerNegative() throws Exception{
+    public void registerNegative() throws Exception{
         facade.register(new RegisterRequest("user", "password", "email@email.com"));
         Assertions.assertThrows(Exception.class, () -> {
             facade.register(new RegisterRequest("user", "password", "email@email.com"));
@@ -48,21 +43,21 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void loginPositive() throws Exception {
+    public void loginPositive() throws Exception {
         facade.register(new RegisterRequest("user", "password", "email@email.com"));
         var result = facade.login(new LoginRequest("user", "password"));
         Assertions.assertNotNull(result.authToken());
     }
 
     @Test
-    void loginNegative() throws Exception{
+    public void loginNegative() throws Exception{
         Assertions.assertThrows(Exception.class, () -> {
             facade.login(new LoginRequest("user", "password"));
         });
     }
 
     @Test
-    void logoutPositive() throws Exception{
+    public void logoutPositive() throws Exception{
         RegisterResult res = facade.register(new RegisterRequest("user", "password", "email@email.com"));
         facade.logout(new LogoutRequest(res.authToken()));
         Assertions.assertThrows(Exception.class, () -> {
@@ -71,14 +66,14 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void logoutNegative() throws Exception{
+    public void logoutNegative() throws Exception{
         Assertions.assertThrows(Exception.class, () -> {
             facade.logout(new LogoutRequest("fake"));
         });
     }
 
     @Test
-    void listGamesPositive() throws Exception{
+    public void listGamesPositive() throws Exception{
         RegisterResult res = facade.register(new RegisterRequest("user", "password", "email@email.com"));
         String token = res.authToken();
 
@@ -92,14 +87,14 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void listGamesNegative() throws Exception{
+    public void listGamesNegative() throws Exception{
         Assertions.assertThrows(Exception.class, () -> {
             facade.listGames(new ListGamesRequest("fake"));
         });
     }
 
     @Test
-    void createGamesPositive() throws  Exception{
+    public void createGamesPositive() throws  Exception{
         RegisterResult result = facade.register(new RegisterRequest("username", "pass", "not@email.com"));
         String token = result.authToken();
         facade.createGame(new CreateGameRequest("Game 1"), token);
@@ -109,14 +104,14 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void createGamesNegative() throws  Exception{
+    public void createGamesNegative() throws  Exception{
         Assertions.assertThrows(Exception.class, () -> {
             facade.createGame(new CreateGameRequest("Game"), "fake");
         });
     }
 
     @Test
-    void joinGamesPositive() throws  Exception{
+    public void joinGamesPositive() throws  Exception{
         RegisterResult result = facade.register(new RegisterRequest("username", "pass", "not@email.com"));
         String token = result.authToken();
         CreateGameResult createGameResult = facade.createGame(new CreateGameRequest("Game 1"), token);
@@ -135,7 +130,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void joinGamesNegative() throws  Exception{
+    public void joinGamesNegative() throws  Exception{
         RegisterResult result = facade.register(new RegisterRequest("join", "join", "email@email.com"));
         String token = result.authToken();
 
@@ -147,7 +142,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void clearPositive() throws Exception {
+    public void clearPositive() throws Exception {
         facade.register(new RegisterRequest("clear", "clear", "clear@email.com"));
         facade.clear();
 
@@ -157,7 +152,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void clearNegative() throws Exception {
+    public void clearNegative() throws Exception {
         Assertions.assertDoesNotThrow(() -> facade.clear());
     }
 }
