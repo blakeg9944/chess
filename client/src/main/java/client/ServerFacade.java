@@ -110,7 +110,8 @@ public class ServerFacade {
         if (request != null) {
             http.setDoOutput(true);
             try (var outputStream = http.getOutputStream()) {
-                var jsonBody = new Gson().toJson(request);
+                var gson = new com.google.gson.GsonBuilder().serializeNulls().create();
+                var jsonBody = gson.toJson(request);
                 outputStream.write(jsonBody.getBytes());
             }
         }

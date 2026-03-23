@@ -11,10 +11,8 @@ public class DisplayBoard {
     private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     private static void drawRow(ChessBoard board, int row, ChessGame.TeamColor perspective) {
-        // Left Side Border
         printBorderSquare(String.valueOf(row));
 
-        // 3. Loop through columns inside the row
         if (perspective == ChessGame.TeamColor.WHITE) {
             for (int col = 1; col <= 8; col++) {
                 printSquare(board, row, col);
@@ -24,8 +22,6 @@ public class DisplayBoard {
                 printSquare(board, row, col);
             }
         }
-
-        // Right Side Border
         printBorderSquare(String.valueOf(row));
         out.println(RESET_BG_COLOR); // Move to next line
     }
@@ -52,12 +48,6 @@ public class DisplayBoard {
 
     }
 
-    private void printHeaders(String[] headers){
-        for (String h: headers){
-            printBorderSquare(h);
-        }
-    }
-
     private static void printBorderSquare(String letter ) {
         out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + letter + " ");
     }
@@ -74,7 +64,6 @@ public class DisplayBoard {
     }
 
     public static void printBoard(ChessBoard board, ChessGame.TeamColor perspective) {
-        // Headers change based on perspective
         String[] headers = perspective == ChessGame.TeamColor.WHITE
                 ? new String[]{" ", "a", "b", "c", "d", "e", "f", "g", "h", " "}
                 : new String[]{" ", "h", "g", "f", "e", "d", "c", "b", "a", " "};
@@ -96,14 +85,11 @@ public class DisplayBoard {
     }
 
     private static void printSquare(ChessBoard board, int row, int col) {
-        // Set Background Color
         if ((row + col) % 2 == 0) {
             out.print(SET_BG_COLOR_DARK_GREY);
         } else {
             out.print(SET_BG_COLOR_LIGHT_GREY);
         }
-
-        // Set Piece and Text Color
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
         if (piece != null) {
             out.print(piece.getTeamColor() == ChessGame.TeamColor.WHITE ? SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK);
@@ -112,8 +98,6 @@ public class DisplayBoard {
             out.print(EMPTY);
         }
     }
-
-
 
     private static void printHeader(String[] headers) {
         for (String h : headers) {

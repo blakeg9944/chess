@@ -1,6 +1,9 @@
 package client;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import model.*;
+import ui.DisplayBoard;
 
 import java.util.*;
 
@@ -81,8 +84,8 @@ public class ChessClient {
                 case "list" -> listGames();
                 case "play" -> joinGame(params);
                 case "create" -> createGame(params);
+                case "observe" -> observeGame(params);
                 case "quit" -> "quit";
-                case "observe" -> "filler";
                 default -> help2();
             };
         } catch (Exception e) {
@@ -145,7 +148,6 @@ public class ChessClient {
             throw new Exception("Expected: <NUMBER> [WHITE|BLACK]");
         }
         try {
-            String displayName = params[0];
             int gameIndex = Integer.parseInt(params[0]) - 1;
             if (gameIndex >= lastGames.size() || gameIndex < 0) {
                 throw new Exception("Check your game number OR make sure list has been run )");
@@ -154,10 +156,23 @@ public class ChessClient {
             String color = params[1].toUpperCase();
             JoinGameRequest request = new JoinGameRequest(color, game.gameID());
             facade.joinGame(request, authToken);
+            showBoard(color.toLowerCase());
             return String.format("Success! You have joined %s as %s. Configuring board", game.gameName(), color);
         } catch (NumberFormatException e) {
             throw new Exception("The first argument must be a number.");
         }
+    }
+
+    private String observeGame(String[] params) throws Exception {
+        if (params.length < 1) {
+            throw new Exception("Expected: <ID>");
+        }
+        int gameIndex = Integer.parseInt(params[0]) - 1;
+        if (gameIndex >= lastGames.size() || gameIndex < 0) {
+            throw new Exception("Check your game number OR make sure list has been run )");
+        }
+        showBoard("white");
+        return String.format("Enjoy!");
     }
 
     private String createGame(String[] params) throws Exception {
@@ -171,7 +186,15 @@ public class ChessClient {
         throw new Exception("Expected: create <GAMENAME>");
     }
 
-    private String showBoard(){
-        return null;
+    private String showBoard(String color){
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        if (color.equals("black")){
+            DisplayBoard.printBoard(board, ChessGame.TeamColor.BLACK);
+        }
+        else {
+            DisplayBoard.printBoard(board, ChessGame.TeamColor.WHITE);
+        }
+        return "";
     }
 }
