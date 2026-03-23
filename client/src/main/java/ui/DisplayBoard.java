@@ -26,28 +26,6 @@ public class DisplayBoard {
         out.println(RESET_BG_COLOR); // Move to next line
     }
 
-    private static void drawSquare(ChessBoard board, int r, int c){
-        if ((r + c) % 2 == 0) {
-            out.print(SET_BG_COLOR_DARK_GREEN);
-        } else {
-            out.print(SET_BG_COLOR_WHITE);
-        }
-
-        ChessPiece curr = board.getPiece(new ChessPosition(r, c));
-
-        if (curr != null) {
-            if (curr.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                out.print(SET_TEXT_COLOR_WHITE + getPieceChar(curr));
-            } else {
-                out.print(SET_TEXT_COLOR_BLACK + getPieceChar(curr));
-            }
-        } else {
-            out.print(EMPTY);
-        }
-
-
-    }
-
     private static void printBorderSquare(String letter ) {
         out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + letter + " ");
     }

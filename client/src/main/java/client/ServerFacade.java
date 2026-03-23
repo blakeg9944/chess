@@ -53,9 +53,7 @@ public class ServerFacade {
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws Exception{
         var http = createURLandConnection("/game", "GET", listGamesRequest.authToken());
-        // 3. Write JSON request body
         http.connect();
-        // 4. Read JSON response body
         if (http.getResponseCode() == 200){
             return readBody(http, ListGamesResult.class);
         }
@@ -89,10 +87,8 @@ public class ServerFacade {
     }
 
     private HttpURLConnection createURLandConnection(String path, String method, String authToken) throws Exception{
-        // 1. Create URL and Connection
         URL url = new URI(serverUrl + path).toURL();
         HttpURLConnection http = (HttpURLConnection) url.openConnection();
-        // 2. Set Method to "POST"
         http.setRequestMethod(method);
         if (authToken != null && !authToken.isEmpty()){
             http.setRequestProperty("authorization", authToken);
@@ -117,26 +113,16 @@ public class ServerFacade {
         }
     }
     private <T> T readBody(HttpURLConnection http, Class<T> tClass) throws Exception {
-        // Check if the response is successful
         InputStream is = (http.getResponseCode() == 200) ? http.getInputStream() : http.getErrorStream();
-
-        if (is == null) return null; // No body returned
-
+        if (is == null){
+            return null;
+        }
         try (InputStreamReader reader = new InputStreamReader(is)) {
             return new Gson().fromJson(reader, tClass);
         } catch (Exception e) {
             throw new Exception("Failed to parse server response: " + e.getMessage());
         }
     }
-
-//    private <T> T readBody(HttpURLConnection http, Class<T> tClass) throws Exception{
-//        try (InputStream respBody = http.getInputStream()) {
-//            InputStreamReader reader = new InputStreamReader(respBody);
-//            return new Gson().fromJson(reader, tClass);
-//        } catch (IOException e) {
-//            return null;
-//        }
-//    }
 
 
     public void clear() throws Exception {
