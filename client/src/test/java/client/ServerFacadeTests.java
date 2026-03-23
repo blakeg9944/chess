@@ -104,12 +104,14 @@ public class ServerFacadeTests {
         String token = result.authToken();
         facade.createGame(new CreateGameRequest("Game 1"), token);
         Assertions.assertNotNull(facade.listGames(new ListGamesRequest(result.authToken())));
+        var list = facade.listGames(new ListGamesRequest(token));
+        Assertions.assertEquals(1, list.games().size());
     }
 
     @Test
     void createGamesNegative() throws  Exception{
         Assertions.assertThrows(Exception.class, () -> {
-            facade.listGames(new ListGamesRequest("notReal"));
+            facade.createGame(new CreateGameRequest("Game"), "fake");
         });
     }
 
@@ -134,8 +136,28 @@ public class ServerFacadeTests {
 
     @Test
     void joinGamesNegative() throws  Exception{
+        RegisterResult result = facade.register(new RegisterRequest("join", "join", "email@email.com"));
+        String token = result.authToken();
+
+        CreateGameResult game = facade.createGame(new CreateGameRequest("Game"), token);
+
         Assertions.assertThrows(Exception.class, () -> {
-            facade.listGames(new ListGamesRequest("notReal"));
+            facade.joinGame(new JoinGameRequest("WHITE", game.gameID()), "fakeToken");
         });
+    }
+
+    @Test
+    void clearPositive() throws Exception {
+        facade.register(new RegisterRequest("clear", "clear", "clear@email.com"));
+        facade.clear();
+
+        Assertions.assertThrows(Exception.class, () -> {
+            facade.login(new LoginRequest("clear", "clear"));
+        });
+    }
+
+    @Test
+    void clearNegative() throws Exception {
+        Assertions.assertDoesNotThrow(() -> facade.clear());
     }
 }
