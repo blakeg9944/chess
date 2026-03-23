@@ -95,25 +95,33 @@ public class ChessClient {
 
     private String login(String[] params) throws Exception {
         if(params.length == 2){
-            String username = params[0];
-            String password = params[1];
-            LoginRequest loginRequest = new LoginRequest(username, password);
-            LoginResult loginResult = facade.login(loginRequest);
-            this.authToken = loginResult.authToken();
-            return String.format("Now logged in as %s", username);
+            try {
+                String username = params[0];
+                String password = params[1];
+                LoginRequest loginRequest = new LoginRequest(username, password);
+                LoginResult loginResult = facade.login(loginRequest);
+                this.authToken = loginResult.authToken();
+                return String.format("Now logged in as %s", username);
+            } catch (Exception e) {
+                throw new Exception("Expected: <USERNAME> <PASSWORD>");
+            }
         }
         throw new Exception("Expected: <USERNAME> <PASSWORD>");
     }
 
     private String register(String[] params) throws Exception {
         if(params.length == 3){
-            String username = params[0];
-            String password = params[1];
-            String email = params[2];
-            RegisterRequest registerRequest = new RegisterRequest(username, password, email);
-            RegisterResult registerResult = facade.register(registerRequest);
-            this.authToken = registerResult.authToken();
-            return String.format("Now registered as %s", username);
+            try {
+                String username = params[0];
+                String password = params[1];
+                String email = params[2];
+                RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+                RegisterResult registerResult = facade.register(registerRequest);
+                this.authToken = registerResult.authToken();
+                return String.format("Now registered as %s", username);
+            } catch (Exception e) {
+                throw new Exception("Expected: register <USERNAME> <PASSWORD> <EMAIL>");
+            }
         }
         throw new Exception("Expected: register <USERNAME> <PASSWORD> <EMAIL>");
     }
@@ -177,10 +185,14 @@ public class ChessClient {
 
     private String createGame(String[] params) throws Exception {
         if (params.length >= 1){
-            String gameName = params[0];
-            CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
-            facade.createGame(createGameRequest, authToken);
-            return String.format("Game %s created", gameName);
+            try {
+                String gameName = params[0];
+                CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
+                facade.createGame(createGameRequest, authToken);
+                return String.format("Game %s created", gameName);
+            } catch (Exception e) {
+                throw new Exception("Expected: create <GAMENAME>");
+            }
 
         }
         throw new Exception("Expected: create <GAMENAME>");
