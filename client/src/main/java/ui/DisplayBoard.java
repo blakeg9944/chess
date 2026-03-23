@@ -8,7 +8,7 @@ import static ui.EscapeSequences.*;
 
 public class DisplayBoard {
 
-    private static final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private static final PrintStream OUT = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     private static void drawRow(ChessBoard board, int row, ChessGame.TeamColor perspective) {
         printBorderSquare(String.valueOf(row));
@@ -23,11 +23,11 @@ public class DisplayBoard {
             }
         }
         printBorderSquare(String.valueOf(row));
-        out.println(RESET_BG_COLOR); // Move to next line
+        OUT.println(RESET_BG_COLOR); // Move to next line
     }
 
     private static void printBorderSquare(String letter ) {
-        out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + letter + " ");
+        OUT.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + letter + " ");
     }
 
     private static String getPieceChar(ChessPiece piece) {
@@ -59,21 +59,21 @@ public class DisplayBoard {
         }
 
         printHeader(headers);
-        out.print(RESET_BG_COLOR + RESET_TEXT_COLOR);
+        OUT.print(RESET_BG_COLOR + RESET_TEXT_COLOR);
     }
 
     private static void printSquare(ChessBoard board, int row, int col) {
         if ((row + col) % 2 == 0) {
-            out.print(SET_BG_COLOR_DARK_GREY);
+            OUT.print(SET_BG_COLOR_DARK_GREY);
         } else {
-            out.print(SET_BG_COLOR_LIGHT_GREY);
+            OUT.print(SET_BG_COLOR_LIGHT_GREY);
         }
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
         if (piece != null) {
-            out.print(piece.getTeamColor() == ChessGame.TeamColor.WHITE ? SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK);
-            out.print(getPieceChar(piece));
+            OUT.print(piece.getTeamColor() == ChessGame.TeamColor.WHITE ? SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK);
+            OUT.print(getPieceChar(piece));
         } else {
-            out.print(EMPTY);
+            OUT.print(EMPTY);
         }
     }
 
@@ -81,6 +81,6 @@ public class DisplayBoard {
         for (String h : headers) {
             printBorderSquare(h);
         }
-        out.println(RESET_BG_COLOR);
+        OUT.println(RESET_BG_COLOR);
     }
 }
