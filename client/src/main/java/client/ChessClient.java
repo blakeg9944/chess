@@ -103,7 +103,7 @@ public class ChessClient {
                 this.authToken = loginResult.authToken();
                 return String.format("Now logged in as %s", username);
             } catch (Exception e) {
-                throw new Exception("Expected: <USERNAME> <PASSWORD>");
+                throw new Exception("Error Unauthorized");
             }
         }
         throw new Exception("Expected: <USERNAME> <PASSWORD>");
@@ -172,12 +172,18 @@ public class ChessClient {
     }
 
     private String observeGame(String[] params) throws Exception {
-        if (params.length < 1) {
+        if (params.length != 1) {
             throw new Exception("Expected: <ID>");
         }
-        int gameIndex = Integer.parseInt(params[0]) - 1;
+        int gameIndex;
+        try{
+            gameIndex = Integer.parseInt(params[0]) - 1;
+        }
+        catch(Exception e){
+            throw new Exception("The first argument must be a number.");
+        }
         if (gameIndex >= lastGames.size() || gameIndex < 0) {
-            throw new Exception("Check your game number OR make sure list has been run )");
+            throw new Exception("Check your game number OR make sure list has been run");
         }
         showBoard("white");
         return String.format("Enjoy!");
