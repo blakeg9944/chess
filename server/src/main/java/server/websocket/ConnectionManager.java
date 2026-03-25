@@ -11,11 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
 
-    // Instead of one big list, we group sessions by their Game ID
     ConcurrentHashMap<Integer, Set<Session>> gameRooms = new ConcurrentHashMap<>();
 
     public void addSessionToGame(int gameID, Session session){
-        Set<Session> sessions = gameRooms.computeIfAbsent(gameID, k -> Collections.newSetFromMap(new ConcurrentHashMap<>()));
+        gameRooms.computeIfAbsent(gameID, k -> Collections.newSetFromMap(new ConcurrentHashMap<>())).add(session);
     }
 
     public void removeSessionFromGame(int gameID, Session session){
