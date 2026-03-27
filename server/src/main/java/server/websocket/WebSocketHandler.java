@@ -1,5 +1,7 @@
 package server.websocket;
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -50,10 +52,6 @@ public class WebSocketHandler {
             //Verify the Session: Use the authToken from the command to make sure this person is actually who they say they are (and that it's actually their turn!).
             AuthData authData = getAuth(command.getAuthToken());
             GameData gameData = getGame(gameID);
-            String username = authData.username();
-            if (!username.equals(gameData.whiteUsername()) && !username.equals(gameData.blackUsername())) {
-                throw new InvalidMoveException("You are not a player in this game.");
-            }
 
         } catch (Exception e) {
             connections.sendMessage(new ErrorMessage(e.getMessage()), session);
@@ -74,5 +72,35 @@ public class WebSocketHandler {
             throw new DataAccessException("Error: Game Not Found");
         }
         return gameData;
+    }
+
+    private void checkMove(AuthData auth, GameData game, ChessMove move) throws Exception{
+        String username = auth.username();
+        ChessGame chessGame = game.game();
+        if (!username.equals(game.whiteUsername()) && !username.equals(game.blackUsername())) {
+            throw new InvalidMoveException("You are not a player in this game.");
+        }
+        boolean isWhite = username.equals(game.whiteUsername());
+        boolean isBlack = username.equals(game.blackUsername());
+        ChessGame.TeamColor playerColor;
+        if (isWhite){
+            playerColor = ChessGame.TeamColor.WHITE;
+        }
+        else{
+            playerColor = ChessGame.TeamColor.BLACK;
+        }
+        ChessGame.TeamColor currentTurn = chessGame.getTeamTurn();
+        if (isWhite && currentTurn != ChessGame.TeamColor.WHITE ||
+                isBlack && currentTurn != ChessGame.TeamColor.BLACK){
+            throw new Exception("Error: It is not your turn");
+        }
+        ChessPiece piece = chessGame.getBoard().getPiece(move.getStartPosition());
+        if (piece == null) {
+            throw new Exception("Error: No piece at " + move.getStartPosition());
+        }
+        if (piece.getTeamColor() != playerColor) {
+            throw new Exception("Error: That is not your piece!");
+        }
+
     }
 }
