@@ -12,10 +12,16 @@ import dataaccess.sql.SQLGameDAO;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import service.BadRequestException;
 import service.UnauthorizedException;
+import websocket.commands.ConnectCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+
+import java.util.Objects;
 
 public class WebSocketHandler {
 
@@ -40,8 +46,45 @@ public class WebSocketHandler {
         
     }
 
-    private void handleConnect(Session session, String message) {
-        
+    private void handleConnect(Session session, String message) throws Exception {
+        try{
+            //parsing
+            ConnectCommand command = new Gson().fromJson(message, ConnectCommand.class);
+            int gameID = command.getGameID();
+            AuthData authData = getAuth(command.getAuthToken());
+            GameData gameData = getGame(gameID);
+            //registration
+            connections.addSessionToGame(gameID, session);
+            boolean isWhite = authData.username().equals(gameData.whiteUsername());
+            boolean isBlack = authData.username().equals(gameData.blackUsername());
+            // communication
+            LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
+            connections.sendMessage(loadGameMessage, session);
+            String notifString = "";
+            if (isWhite){
+                notifString = String.format("%s has joined the game as white", authData.username());
+            }
+            else if(isBlack){
+                notifString = String.format("%s has joined the game as black", authData.username());
+            }
+            else{
+                notifString = String.format("%s is observing the game", authData.username());
+            }
+            NotificationMessage notificationMessage = new NotificationMessage(notifString);
+            connections.broadcast(gameID, session, notificationMessage);
+        }
+        catch(UnauthorizedException exception){
+            ErrorMessage errorMessage = new ErrorMessage("Error: Unauthorized");
+            connections.sendMessage(errorMessage, session);
+        } catch (BadRequestException e) {
+            ErrorMessage errorMessage = new ErrorMessage("Error: Bad request");
+            connections.sendMessage(errorMessage, session);
+        }
+        catch(DataAccessException exception){
+            ErrorMessage errorMessage = new ErrorMessage("Error: Game Does Not Exist");
+            connections.sendMessage(errorMessage, session);
+        }
+
     }
 
     private void handleMakeMove(Session session, String message) throws Exception {
@@ -105,6 +148,5 @@ public class WebSocketHandler {
         if (piece.getTeamColor() != playerColor) {
             throw new Exception("Error: That is not your piece!");
         }
-
     }
 }
