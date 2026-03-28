@@ -15,6 +15,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import service.BadRequestException;
 import service.UnauthorizedException;
 import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
@@ -42,8 +43,40 @@ public class WebSocketHandler {
     private void handleResign(Session session, String message) {
     }
 
-    private void handleLeave(Session session, String message) {
-        
+    private void handleLeave(Session session, String message) throws Exception {
+        try{
+            LeaveCommand leaveCommand = new Gson().fromJson(message, LeaveCommand.class);
+            int gameID = leaveCommand.getGameID();
+            GameData gameData = gameDAO.getGame(gameID);
+            AuthData authData = getAuth(leaveCommand.getAuthToken());
+            connections.removeSessionFromGame(gameID, session);
+            boolean isWhite = authData.username().equals(gameData.whiteUsername());
+            boolean isBlack = authData.username().equals(gameData.blackUsername());
+            String notifString = "";
+            if (isBlack){
+                GameData newGame = new GameData(gameID, gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+                gameDAO.updateGame(newGame);
+                notifString = String.format("%s has left the game as black", gameData.blackUsername());
+            }
+            else if (isWhite){
+                GameData newGame = new GameData(gameID, null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+                gameDAO.updateGame(newGame);
+                notifString = String.format("%s has left the game as white", gameData.whiteUsername());
+            }
+            else {
+                notifString = String.format("%s (observer) has left the game", authData.username());
+            }
+            NotificationMessage notificationMessage = new NotificationMessage(notifString);
+            connections.broadcast(gameID, session, notificationMessage);
+        }
+        catch(DataAccessException e){
+            ErrorMessage errorMessage = new ErrorMessage("Error: Check username");
+            connections.sendMessage(errorMessage, session);
+        }
+        catch(UnauthorizedException e) {
+            ErrorMessage errorMessage = new ErrorMessage("Error: Unauthorized");
+            connections.sendMessage(errorMessage, session);
+        }
     }
 
     private void handleConnect(Session session, String message) throws Exception {
