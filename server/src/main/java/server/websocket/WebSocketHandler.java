@@ -14,10 +14,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import service.BadRequestException;
 import service.UnauthorizedException;
-import websocket.commands.ConnectCommand;
-import websocket.commands.LeaveCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -32,7 +29,7 @@ public class WebSocketHandler {
 
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
-        switch (userGameCommand.getCommandType()){
+        switch (userGameCommand.getCommandType()) {
             case MAKE_MOVE -> handleMakeMove(session, message);
             case CONNECT -> handleConnect(session, message);
             case LEAVE -> handleLeave(session, message);
@@ -40,7 +37,17 @@ public class WebSocketHandler {
         }
     }
 
-    private void handleResign(Session session, String message) {
+    private void handleResign(Session session, String message) throws Exception{
+        ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
+        int gameID = resignCommand.getGameID();
+        GameData gameData = gameDAO.getGame(gameID);
+        AuthData authData = getAuth(resignCommand.getAuthToken());
+        boolean isWhite = authData.username().equals(gameData.whiteUsername());
+        boolean isBlack = authData.username().equals(gameData.blackUsername());
+        if (!isBlack && !isWhite){
+            ErrorMessage errorMessage = new ErrorMessage("Observer cannot resign");
+            connections.sendMessage(errorMessage, session);
+        }
     }
 
     private void handleLeave(Session session, String message) throws Exception {
