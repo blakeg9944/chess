@@ -12,7 +12,6 @@ import dataaccess.sql.SQLGameDAO;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
-import server.Server;
 import service.UnauthorizedException;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
@@ -49,9 +48,11 @@ public class WebSocketHandler {
         try{
             MakeMoveCommand command = new Gson().fromJson(message, MakeMoveCommand.class);
             int gameID = command.getGameID();
-            //Verify the Session: Use the authToken from the command to make sure this person is actually who they say they are (and that it's actually their turn!).
             AuthData authData = getAuth(command.getAuthToken());
             GameData gameData = getGame(gameID);
+            checkMove(authData, gameData, command.getMove());
+            gameData.game().makeMove(command.getMove());
+            gameDAO.updateGame(gameData);
 
         } catch (Exception e) {
             connections.sendMessage(new ErrorMessage(e.getMessage()), session);
@@ -86,8 +87,11 @@ public class WebSocketHandler {
         if (isWhite){
             playerColor = ChessGame.TeamColor.WHITE;
         }
-        else{
+        else if(isBlack){
             playerColor = ChessGame.TeamColor.BLACK;
+        }
+        else{
+            playerColor = null;
         }
         ChessGame.TeamColor currentTurn = chessGame.getTeamTurn();
         if (isWhite && currentTurn != ChessGame.TeamColor.WHITE ||
