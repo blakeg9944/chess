@@ -48,6 +48,15 @@ public class WebSocketHandler {
             ErrorMessage errorMessage = new ErrorMessage("Observer cannot resign");
             connections.sendMessage(errorMessage, session);
         }
+        if (gameData.game().isGameOver()){
+            throw new Exception("Error: Game is Over");
+        }
+        else{
+            gameData.game().setGameOver(true);
+        }
+        String notifMessage = String.format("[%s] has resigned the game", authData.username());
+        NotificationMessage notificationMessage = new NotificationMessage(notifMessage);
+        connections.broadcast(gameID, null, notificationMessage);
     }
 
     private void handleLeave(Session session, String message) throws Exception {
@@ -136,6 +145,11 @@ public class WebSocketHandler {
             checkMove(authData, gameData, command.getMove());
             gameData.game().makeMove(command.getMove());
             gameDAO.updateGame(gameData);
+            connections.broadcast(gameID, null, new LoadGameMessage(gameData.game()));
+            postMoveCheck(gameData, authData);
+            String notifString = String.format("[%s] has moved to %s", authData.username(), command.getMove().getEndPosition());
+            NotificationMessage notificationMessage = new NotificationMessage(notifString);
+            connections.broadcast(gameID, session, notificationMessage);
 
         } catch (Exception e) {
             connections.sendMessage(new ErrorMessage(e.getMessage()), session);
@@ -157,8 +171,60 @@ public class WebSocketHandler {
         }
         return gameData;
     }
+    private void postMoveCheck(GameData gameData, AuthData authData) throws Exception{
+        boolean isWhite = authData.username().equals(gameData.whiteUsername());
+        boolean isBlack = authData.username().equals(gameData.blackUsername());
+        ChessGame.TeamColor playerColor;
+        ChessGame.TeamColor oppColor;
+        if (isWhite){
+            playerColor = ChessGame.TeamColor.WHITE;
+            oppColor = ChessGame.TeamColor.BLACK;
+
+        }
+        else if(isBlack) {
+            playerColor = ChessGame.TeamColor.BLACK;
+            oppColor = ChessGame.TeamColor.WHITE;
+        }
+        else{
+            playerColor = null;
+            oppColor = null;
+        }
+        if (playerColor == null) {
+            return;
+        }
+
+        if (gameData.game().isInCheckmate(oppColor)){
+            gameData.game().setGameOver(true);
+            gameDAO.updateGame(gameData);
+            String notifString = String.format("Wow checkmate! [%s] wins", authData.username());
+            NotificationMessage notificationMessage = new NotificationMessage(notifString);
+            connections.broadcast(gameData.gameID(), null, notificationMessage);
+        }
+        else if (gameData.game().isInStalemate(oppColor)){
+            gameDAO.updateGame(gameData);
+            NotificationMessage notificationMessage = new NotificationMessage("Stalemate! Game over");
+            connections.broadcast(gameData.gameID(), null, notificationMessage);
+        }
+        else if(gameData.game().isInCheck(oppColor)){
+            String opp;
+            if (isBlack){
+                opp = "WHITE";
+            }
+            else{
+                opp = "BLACK";
+            }
+            gameDAO.updateGame(gameData);
+            String notifString = String.format("[%s] is in Check", opp );
+            NotificationMessage notificationMessage = new NotificationMessage(notifString);
+            connections.broadcast(gameData.gameID(), null, notificationMessage);
+        }
+
+    }
 
     private void checkMove(AuthData auth, GameData game, ChessMove move) throws Exception{
+        if (game.game().isGameOver()){
+            throw new Exception("Error: The game is over. No more moves allowed.");
+        }
         String username = auth.username();
         ChessGame chessGame = game.game();
         if (!username.equals(game.whiteUsername()) && !username.equals(game.blackUsername())) {
@@ -169,6 +235,7 @@ public class WebSocketHandler {
         ChessGame.TeamColor playerColor;
         if (isWhite){
             playerColor = ChessGame.TeamColor.WHITE;
+
         }
         else if(isBlack){
             playerColor = ChessGame.TeamColor.BLACK;
