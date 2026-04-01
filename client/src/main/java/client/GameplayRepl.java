@@ -3,10 +3,14 @@ package client;
 public class GameplayRepl {
     private final ChessClient client;
     private final ServerFacade facade;
+    private final int gameID;
+    private final String playerColor;
 
-    public GameplayRepl(ChessClient client, ServerFacade facade) {
+    public GameplayRepl(ChessClient client, ServerFacade facade, int gameID, String playerColor) {
         this.client = client;
         this.facade = facade;
+        this.gameID = gameID;
+        this.playerColor = playerColor;
     }
 
     public String gameplayEval(String cmd, String[] params) {

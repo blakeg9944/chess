@@ -64,6 +64,7 @@ public class PostLoginRepl {
         }
         GameData game = lastGames.get(gameIndex);
         String color = params[1].toUpperCase();
+        this.client.setGameplayRepl(new GameplayRepl(this.client, this.facade, game.gameID(), color));
         facade.joinGame(new JoinGameRequest(color, game.gameID()), client.getAuthToken());
         //client.setState(ChessClient.State.IN_GAME);
         showBoard(color.toLowerCase());
@@ -127,5 +128,21 @@ public class PostLoginRepl {
             quit - playing chess
             help - with possible commands
             """;
+    }
+
+    public String postLoginEval(String command, String[] params){
+        try {
+            return switch (command) {
+                case "logout" -> logout();
+                case "list" -> listGames();
+                case "play" -> joinGame(params);
+                case "create" -> createGame(params);
+                case "observe" -> observeGame(params);
+                case "quit" -> "quit";
+                default -> help2();
+            };
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 }

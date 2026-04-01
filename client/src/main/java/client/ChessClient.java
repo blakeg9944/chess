@@ -1,9 +1,7 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
+
 import model.*;
-import ui.DisplayBoard;
 
 import java.util.*;
 
@@ -11,19 +9,19 @@ import java.util.*;
 public class ChessClient {
 
     private String authToken = null;
-    private final ServerFacade facade;
     private List<GameData> lastGames = new ArrayList<>();
     private State state = State.LOGGED_OUT;
     private final PreLoginRepl preLoginRepl;
     private final PostLoginRepl postLoginRepl;
+    private GameplayRepl gameplayRepl;
 
     public ChessClient(String serverURL) {
-        this.facade = new ServerFacade(serverURL);
+        ServerFacade facade = new ServerFacade(serverURL);
         this.postLoginRepl = new PostLoginRepl(this, facade);
         this.preLoginRepl = new PreLoginRepl(this, facade);
     }
 
-    public void run() throws Exception {
+    public void run() {
         System.out.println("Welcome to Chess! Type 'Help' to begin.");
         Scanner scanner = new Scanner(System.in);
         String result = "";
@@ -40,8 +38,8 @@ public class ChessClient {
             try {
                 result = switch (state) {
                     case LOGGED_OUT -> preLoginRepl.preLoginEval(cmd, params);
-                    case LOGGED_IN -> postLoginEval(cmd, params);
-                    ///case IN_GAME -> gameplayEval(cmd, params);
+                    case LOGGED_IN -> postLoginRepl.postLoginEval(cmd, params);
+                    case IN_GAME -> gameplayRepl.gameplayEval(cmd, params);
                 };
                 System.out.println(result);
             } catch (Exception e) {
@@ -50,50 +48,14 @@ public class ChessClient {
         }
     }
 
-//    public String gameplayEval(String cmd, String[] params) {
-//        try {
-//            return switch (cmd) {
-//                case "login" -> login(params);
-//                case "register" -> register(params);
-//                case "quit" -> "quit";
-//                default -> help3();
-//            };
-//        } catch (Exception e) {
-//            return e.getMessage();
-//        }
-//    }
-
-    private String help3() {
-        return """
-            redraw - redraws the chess board
-            leave - exits the game back to menu
-            move - <START POSITION> <END POSITION> - moves piece of choice
-            resign - quit the game
-            highlight - highlights all legal moves
-            help- with possible commands
-            """;
-    }
-
-    public String postLoginEval(String command, String[] params){
-        try {
-            return switch (command) {
-                case "logout" -> postLoginRepl.logout();
-                case "list" -> postLoginRepl.listGames();
-                case "play" -> postLoginRepl.joinGame(params);
-                case "create" -> postLoginRepl.createGame(params);
-                case "observe" -> postLoginRepl.observeGame(params);
-                case "quit" -> "quit";
-                default -> postLoginRepl.help2();
-            };
-        } catch (Exception e) {
-            return e.getMessage();
-        }
+    public void setGameplayRepl(GameplayRepl gameplayRepl) {
+        this.gameplayRepl = gameplayRepl;
     }
 
     public enum State {
         LOGGED_OUT,
         LOGGED_IN,
-        ///IN_GAME
+        IN_GAME
     }
 
     public void setAuthToken(String authToken){
