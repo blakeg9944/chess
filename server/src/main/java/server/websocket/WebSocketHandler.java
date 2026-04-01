@@ -202,6 +202,7 @@ public class WebSocketHandler {
             connections.broadcast(gameData.gameID(), null, notificationMessage);
         }
         else if (gameData.game().isInStalemate(oppColor)){
+            gameData.game().setGameOver(true);
             gameDAO.updateGame(gameData);
             NotificationMessage notificationMessage = new NotificationMessage("Stalemate! Game over");
             connections.broadcast(gameData.gameID(), null, notificationMessage);
