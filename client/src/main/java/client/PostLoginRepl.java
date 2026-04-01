@@ -79,31 +79,31 @@ public class PostLoginRepl {
         try{
             gameIndex = Integer.parseInt(params[0]) - 1;
         }
-        catch(Exception e){
+        catch(NumberFormatException e){
             throw new Exception("The first argument must be a number.");
         }
+        if (lastGames == null || lastGames.isEmpty()) {
+            throw new Exception("Error: Please run 'list' first.");
+        }
+
         if (gameIndex >= lastGames.size() || gameIndex < 0) {
-            throw new Exception("Check your game number OR make sure list has been run");
+            throw new Exception("Error: Invalid game number.");
         }
         showBoard("white");
         return String.format("Enjoy!");
     }
-
     public String createGame(String[] params) throws Exception {
-        if (params.length < 1){
-            throw new Exception("Expected: create <GAMENAME>");
+        if (params.length < 1) {
+            throw new Exception("Error: Expected create <GAMENAME>");
         }
-        try {
-            String gameName = params[0];
-            CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
-            facade.createGame(createGameRequest, client.getAuthToken());
-            return String.format("Game %s created", gameName);
-        } catch (Exception e) {
-            throw new Exception("Error:" + e.getMessage());
-        }
+        String gameName = params[0];
+        CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
+        facade.createGame(createGameRequest, client.getAuthToken());
 
-
+        return String.format("Game '%s' created successfully!", gameName);
     }
+
+
 
     public String showBoard(String color){
         ChessBoard board = new ChessBoard();
