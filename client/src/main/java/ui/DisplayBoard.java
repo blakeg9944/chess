@@ -1,29 +1,35 @@
 package ui;
 
 import chess.*;
+import client.ChessClient;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+
 import static ui.EscapeSequences.*;
 
 public class DisplayBoard {
 
     private static final PrintStream OUT = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-    private static void drawRow(ChessBoard board, int row, ChessGame.TeamColor perspective) {
+    private static void drawRow(ChessBoard board, int row, ChessGame.TeamColor perspective,
+                                ChessPosition startPos, Collection<ChessPosition> highlightPos) {
         printBorderSquare(String.valueOf(row));
 
         if (perspective == ChessGame.TeamColor.WHITE) {
             for (int col = 1; col <= 8; col++) {
-                printSquare(board, row, col);
+                // Pass the actual data instead of null
+                printSquare(board, row, col, startPos, highlightPos);
             }
         } else {
             for (int col = 8; col >= 1; col--) {
-                printSquare(board, row, col);
+                // Pass the actual data instead of null
+                printSquare(board, row, col, startPos, highlightPos);
             }
         }
         printBorderSquare(String.valueOf(row));
-        OUT.println(RESET_BG_COLOR); // Move to next line
+        OUT.println(RESET_BG_COLOR);
     }
 
     private static void printBorderSquare(String letter ) {
@@ -50,11 +56,11 @@ public class DisplayBoard {
 
         if (perspective == ChessGame.TeamColor.WHITE) {
             for (int r = 8; r >= 1; r--) {
-                drawRow(board, r, perspective);
+                drawRow(board, r, perspective, null, null);
             }
         } else {
             for (int r = 1; r <= 8; r++) {
-                drawRow(board, r, perspective);
+                drawRow(board, r, perspective, null, null);
             }
         }
 
@@ -62,11 +68,15 @@ public class DisplayBoard {
         OUT.print(RESET_BG_COLOR + RESET_TEXT_COLOR);
     }
 
-    private static void printSquare(ChessBoard board, int row, int col) {
-        if ((row + col) % 2 == 0) {
-            OUT.print(SET_BG_COLOR_DARK_GREY);
+    private static void printSquare(ChessBoard board, int row, int col, ChessPosition startPos, Collection<ChessPosition> highlightPos) {
+        ChessPosition currentPos = new ChessPosition(row, col);
+        boolean isDark = (row + col) % 2 == 0;
+        if (startPos != null && currentPos.equals(startPos)) {
+            OUT.print(SET_BG_COLOR_YELLOW);
+        } else if (highlightPos != null && highlightPos.contains(currentPos)) {
+            OUT.print(isDark ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN);
         } else {
-            OUT.print(SET_BG_COLOR_LIGHT_GREY);
+            OUT.print(isDark ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY);
         }
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
         if (piece != null) {
@@ -82,5 +92,31 @@ public class DisplayBoard {
             printBorderSquare(h);
         }
         OUT.println(RESET_BG_COLOR);
+    }
+
+    public static void printBoardWithHighlights(ChessBoard board, ChessPosition startPos,
+                                                ChessGame.TeamColor perspective,
+                                                Collection<ChessPosition> validEndPositions) {
+
+        String[] headers = perspective == ChessGame.TeamColor.WHITE
+                ? new String[]{" ", "a", "b", "c", "d", "e", "f", "g", "h", " "}
+                : new String[]{" ", "h", "g", "f", "e", "d", "c", "b", "a", " "};
+
+        printHeader(headers);
+
+        if (perspective == ChessGame.TeamColor.WHITE) {
+            for (int r = 8; r >= 1; r--) {
+                // Pass the startPos and highlights here!
+                drawRow(board, r, perspective, startPos, validEndPositions);
+            }
+        } else {
+            for (int r = 1; r <= 8; r++) {
+                // Pass the startPos and highlights here!
+                drawRow(board, r, perspective, startPos, validEndPositions);
+            }
+        }
+
+        printHeader(headers);
+        OUT.print(RESET_BG_COLOR + RESET_TEXT_COLOR);
     }
 }
