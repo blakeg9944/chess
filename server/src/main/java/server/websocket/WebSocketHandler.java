@@ -19,8 +19,6 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
-import java.util.Objects;
-
 public class WebSocketHandler {
 
     private final AuthDAO authDAO = new SQLAuthDAO();
@@ -38,25 +36,28 @@ public class WebSocketHandler {
     }
 
     private void handleResign(Session session, String message) throws Exception{
-        ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
-        int gameID = resignCommand.getGameID();
-        GameData gameData = gameDAO.getGame(gameID);
-        AuthData authData = getAuth(resignCommand.getAuthToken());
-        boolean isWhite = authData.username().equals(gameData.whiteUsername());
-        boolean isBlack = authData.username().equals(gameData.blackUsername());
-        if (!isBlack && !isWhite){
-            ErrorMessage errorMessage = new ErrorMessage("Observer cannot resign");
+        try {
+            ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
+            int gameID = resignCommand.getGameID();
+            GameData gameData = gameDAO.getGame(gameID);
+            AuthData authData = getAuth(resignCommand.getAuthToken());
+            boolean isWhite = authData.username().equals(gameData.whiteUsername());
+            boolean isBlack = authData.username().equals(gameData.blackUsername());
+            if (!isBlack && !isWhite) {
+                throw new Exception("Error: Observer cannot resign");
+            }
+            if (gameData.game().isGameOver()) {
+                throw new Exception("Error: Game is Over");
+            }
+            gameData.game().setGameOver(true);
+            gameDAO.updateGame(gameData);
+            String notifMessage = String.format("[%s] has resigned the game", authData.username());
+            NotificationMessage notificationMessage = new NotificationMessage(notifMessage);
+            connections.broadcast(gameID, null, notificationMessage);
+        } catch (Exception e) {
+            ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
             connections.sendMessage(errorMessage, session);
         }
-        if (gameData.game().isGameOver()){
-            throw new Exception("Error: Game is Over");
-        }
-        else{
-            gameData.game().setGameOver(true);
-        }
-        String notifMessage = String.format("[%s] has resigned the game", authData.username());
-        NotificationMessage notificationMessage = new NotificationMessage(notifMessage);
-        connections.broadcast(gameID, null, notificationMessage);
     }
 
     private void handleLeave(Session session, String message) throws Exception {
