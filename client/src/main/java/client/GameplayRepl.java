@@ -26,18 +26,23 @@ public class GameplayRepl {
     }
 
     private String highlightMovePieces(String[] params) {
+        return null;
     }
 
     private String resign(String[] params) {
+        return null;
     }
 
     private String move(String[] params) {
+        return null;
     }
 
     private String leave(String[] params) {
+        return null;
     }
 
     private String redraw(String[] params) {
+        return null;
     }
 
     private String help3() {

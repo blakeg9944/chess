@@ -27,7 +27,8 @@ public class ServerFacade {
             return readBody(http, LoginResult.class);
         }
         else{
-            throw new Exception("Error: " + http.getResponseCode());
+            var error = readBody(http, ErrorResponse.class);
+            throw new Exception(error != null ? error.message() : "Error: " + http.getResponseCode());
         }
     }
 
@@ -39,7 +40,8 @@ public class ServerFacade {
             return readBody(http, RegisterResult.class);
         }
         else{
-            throw new Exception("Error: " + http.getResponseCode());
+            var error = readBody(http, ErrorResponse.class);
+            throw new Exception(error != null ? error.message() : "Error: " + http.getResponseCode());
         }
     }
 
@@ -47,7 +49,8 @@ public class ServerFacade {
         var httpURLConnection = createURLandConnection("/session", "DELETE", logoutRequest.authToken());
         httpURLConnection.connect();
         if(httpURLConnection.getResponseCode() != 200) {
-            throw new Exception("Logout failed: " + httpURLConnection.getResponseCode());
+            var error = readBody(httpURLConnection, ErrorResponse.class);
+            throw new Exception(error != null ? error.message() : "Logout failed");
         }
     }
 
@@ -58,7 +61,8 @@ public class ServerFacade {
             return readBody(http, ListGamesResult.class);
         }
         else{
-            throw new Exception("Error: " + http.getResponseCode());
+            var error = readBody(http, ErrorResponse.class);
+            throw new Exception(error != null ? error.message() : "Error: " + http.getResponseCode());
         }
     }
 
@@ -70,7 +74,8 @@ public class ServerFacade {
             return readBody(http, CreateGameResult.class);
         }
         else{
-            throw new Exception("Error: " + http.getResponseCode());
+            var error = readBody(http, ErrorResponse.class);
+            throw new Exception(error != null ? error.message() : "Error: " + http.getResponseCode());
         }
     }
 
@@ -82,7 +87,8 @@ public class ServerFacade {
             readBody(http, JoinGameResult.class);
         }
         else{
-            throw new Exception("Error: " + http.getResponseCode());
+            var error = readBody(http, ErrorResponse.class);
+            throw new Exception(error != null ? error.message() : "Error: " + http.getResponseCode());
         }
     }
 

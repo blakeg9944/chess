@@ -47,27 +47,27 @@ public class PostLoginRepl {
 
     public String joinGame(String[] params) throws Exception {
         if (params.length < 2) {
-            throw new Exception("Expected: <NUMBER> [WHITE|BLACK]");
+            throw new Exception("Error: Expected <NUMBER> [WHITE|BLACK]");
         }
+        int gameIndex;
         try {
-            int gameIndex = Integer.parseInt(params[0]) - 1;
-            List<GameData> lastGames = client.getLastGames();
-            if (lastGames == null || lastGames.isEmpty()) {
-                throw new Exception("No games found. Please run 'list' first to see available games.");
-            }
-            if (gameIndex >= lastGames.size() || gameIndex < 0) {
-                throw new Exception("Check your game number OR make sure list has been run");
-            }
-            GameData game = lastGames.get(gameIndex);
-            String color = params[1].toUpperCase();
-            JoinGameRequest request = new JoinGameRequest(color, game.gameID());
-            facade.joinGame(request, client.getAuthToken());
-            showBoard(color.toLowerCase());
-            ///this.state = State.IN_GAME;
-            return String.format("Success! You have joined %s as %s. Configuring board", game.gameName(), color);
+            gameIndex = Integer.parseInt(params[0]) - 1;
         } catch (NumberFormatException e) {
-            throw new Exception("The first argument must be a number.");
+            throw new Exception("Error: The first argument must be a number (e.g., '1', not 'one').");
         }
+        List<GameData> lastGames = client.getLastGames();
+        if (lastGames == null || lastGames.isEmpty()) {
+            throw new Exception("Error: No games found. Please run 'list' first.");
+        }
+        if (gameIndex >= lastGames.size() || gameIndex < 0) {
+            throw new Exception("Error: Invalid game number. Check the 'list' output.");
+        }
+        GameData game = lastGames.get(gameIndex);
+        String color = params[1].toUpperCase();
+        facade.joinGame(new JoinGameRequest(color, game.gameID()), client.getAuthToken());
+        //client.setState(ChessClient.State.IN_GAME);
+        showBoard(color.toLowerCase());
+        return String.format("Success! Joined %s as %s.", game.gameName(), color);
     }
 
     public String observeGame(String[] params) throws Exception {
@@ -90,18 +90,19 @@ public class PostLoginRepl {
     }
 
     public String createGame(String[] params) throws Exception {
-        if (params.length >= 1){
-            try {
-                String gameName = params[0];
-                CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
-                facade.createGame(createGameRequest, client.getAuthToken());
-                return String.format("Game %s created", gameName);
-            } catch (Exception e) {
-                throw new Exception("Expected: create <GAMENAME>");
-            }
-
+        if (params.length < 1){
+            throw new Exception("Expected: create <GAMENAME>");
         }
-        throw new Exception("Expected: create <GAMENAME>");
+        try {
+            String gameName = params[0];
+            CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
+            facade.createGame(createGameRequest, client.getAuthToken());
+            return String.format("Game %s created", gameName);
+        } catch (Exception e) {
+            throw new Exception("Error:" + e.getMessage());
+        }
+
+
     }
 
     public String showBoard(String color){
