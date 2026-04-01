@@ -66,8 +66,8 @@ public class PostLoginRepl {
         String color = params[1].toUpperCase();
         this.client.setGameplayRepl(new GameplayRepl(this.client, this.facade, game.gameID(), color));
         facade.joinGame(new JoinGameRequest(color, game.gameID()), client.getAuthToken());
-        //client.setState(ChessClient.State.IN_GAME);
-        showBoard(color.toLowerCase());
+        client.setState(ChessClient.State.IN_GAME);
+        client.showBoard(color.toLowerCase());
         return String.format("Success! Joined %s as %s.", game.gameName(), color);
     }
 
@@ -90,7 +90,7 @@ public class PostLoginRepl {
         if (gameIndex >= lastGames.size() || gameIndex < 0) {
             throw new Exception("Error: Invalid game number.");
         }
-        showBoard("white");
+        client.showBoard("white");
         return String.format("Enjoy!");
     }
     public String createGame(String[] params) throws Exception {
@@ -104,19 +104,6 @@ public class PostLoginRepl {
         return String.format("Game '%s' created successfully!", gameName);
     }
 
-
-
-    public String showBoard(String color){
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        if (color.equals("black")){
-            DisplayBoard.printBoard(board, ChessGame.TeamColor.BLACK);
-        }
-        else {
-            DisplayBoard.printBoard(board, ChessGame.TeamColor.WHITE);
-        }
-        return "";
-    }
 
     public String help2() {
         return """

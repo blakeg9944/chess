@@ -42,11 +42,12 @@ public class GameplayRepl {
     }
 
     private String leave(String[] params) {
-        return null;
+        client.setState(ChessClient.State.LOGGED_IN);
+        return "";
     }
 
     private String redraw(String[] params) {
-        return null;
+        return client.showBoard(playerColor.toLowerCase());
     }
 
     private String help3() {

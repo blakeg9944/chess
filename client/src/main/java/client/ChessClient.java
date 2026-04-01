@@ -1,7 +1,10 @@
 package client;
 
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import model.*;
+import ui.DisplayBoard;
 
 import java.util.*;
 
@@ -76,5 +79,17 @@ public class ChessClient {
 
     public List<GameData> getLastGames() {
         return lastGames;
+    }
+
+    public String showBoard(String color){
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        if (color.equals("black")){
+            DisplayBoard.printBoard(board, ChessGame.TeamColor.BLACK);
+        }
+        else {
+            DisplayBoard.printBoard(board, ChessGame.TeamColor.WHITE);
+        }
+        return "";
     }
 }
