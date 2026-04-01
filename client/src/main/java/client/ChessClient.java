@@ -13,6 +13,7 @@ public class ChessClient {
     private String authToken = null;
     private final ServerFacade facade;
     private List<GameData> lastGames = new ArrayList<>();
+    private State state = State.LOGGED_OUT;
 
     public ChessClient(String serverURL) {
         this.facade = new ServerFacade(serverURL);
@@ -32,15 +33,22 @@ public class ChessClient {
                 cmd = "help";
             }
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            if (authToken == null) {
-                result = preLoginEval(cmd, params);
-            } else {
-                result = postLoginEval(cmd, params);
-            }
-            if (!result.equals("quit")) {
+            try {
+                result = switch (state) {
+                    case LOGGED_OUT -> preLoginEval(cmd, params);
+                    case LOGGED_IN -> postLoginEval(cmd, params);
+                    case IN_GAME -> gameplayEval(cmd, params);
+                };
                 System.out.println(result);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         }
+    }
+
+    private String gameplayEval(String cmd, String[] params) {
+        String result = "";
+        return result;
     }
 
     public String help1() {
@@ -101,6 +109,7 @@ public class ChessClient {
                 LoginRequest loginRequest = new LoginRequest(username, password);
                 LoginResult loginResult = facade.login(loginRequest);
                 this.authToken = loginResult.authToken();
+                this.state = State.LOGGED_IN;
                 return String.format("Now logged in as %s", username);
             } catch (Exception e) {
                 throw new Exception("Error Unauthorized");
@@ -129,6 +138,7 @@ public class ChessClient {
     private String logout() throws Exception {
         LogoutRequest logoutRequest = new LogoutRequest(authToken);
         facade.logout(logoutRequest);
+        this.state = State.LOGGED_OUT;
         this.authToken = null;
         return "Now logged out";
     }
@@ -165,6 +175,7 @@ public class ChessClient {
             JoinGameRequest request = new JoinGameRequest(color, game.gameID());
             facade.joinGame(request, authToken);
             showBoard(color.toLowerCase());
+            this.state = State.IN_GAME;
             return String.format("Success! You have joined %s as %s. Configuring board", game.gameName(), color);
         } catch (NumberFormatException e) {
             throw new Exception("The first argument must be a number.");
@@ -214,5 +225,11 @@ public class ChessClient {
             DisplayBoard.printBoard(board, ChessGame.TeamColor.WHITE);
         }
         return "";
+    }
+
+    public enum State {
+        LOGGED_OUT,
+        LOGGED_IN,
+        IN_GAME
     }
 }
