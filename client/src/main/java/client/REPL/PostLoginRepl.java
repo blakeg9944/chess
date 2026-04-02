@@ -1,5 +1,6 @@
 package client.REPL;
 
+import chess.ChessGame;
 import client.ChessClient;
 import client.ServerFacade;
 import model.*;
@@ -63,6 +64,8 @@ public class PostLoginRepl {
         }
         GameData game = lastGames.get(gameIndex);
         String color = params[1].toUpperCase();
+        ChessGame.TeamColor playerColor = ChessGame.TeamColor.valueOf(color);
+        client.setPlayerColor(playerColor);
         this.client.setGameplayRepl(new GameplayRepl(this.client, this.facade, game.gameID(), color));
         facade.joinGame(new JoinGameRequest(color, game.gameID()), client.getAuthToken());
         client.setState(ChessClient.State.IN_GAME);
@@ -89,6 +92,7 @@ public class PostLoginRepl {
         if (gameIndex >= lastGames.size() || gameIndex < 0) {
             throw new Exception("Error: Invalid game number.");
         }
+        client.setPlayerColor(ChessGame.TeamColor.WHITE);
         client.showBoard("white");
         return String.format("Enjoy!");
     }

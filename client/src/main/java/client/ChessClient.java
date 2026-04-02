@@ -9,6 +9,9 @@ import client.REPL.PreLoginRepl;
 import client.websocket.NotificationHandler;
 import model.*;
 import ui.DisplayBoard;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.*;
@@ -22,6 +25,7 @@ public class ChessClient implements NotificationHandler {
     private final PreLoginRepl preLoginRepl;
     private final PostLoginRepl postLoginRepl;
     private GameplayRepl gameplayRepl;
+    private ChessGame.TeamColor playerColor = ChessGame.TeamColor.WHITE;
 
     public ChessClient(String serverURL) {
         ServerFacade facade = new ServerFacade(serverURL);
@@ -58,6 +62,14 @@ public class ChessClient implements NotificationHandler {
 
     public void setGameplayRepl(GameplayRepl gameplayRepl) {
         this.gameplayRepl = gameplayRepl;
+    }
+
+    public ChessGame.TeamColor getPlayerColor() {
+        return playerColor;
+    }
+
+    public void setPlayerColor(ChessGame.TeamColor playerColor) {
+        this.playerColor = playerColor;
     }
 
     public enum State {
@@ -100,6 +112,29 @@ public class ChessClient implements NotificationHandler {
 
     @Override
     public void notify(ServerMessage message){
+        switch (message.getServerMessageType()){
+            case LOAD_GAME ->{
+                LoadGameMessage loadGameMessage = (LoadGameMessage) message;
+                ChessGame game = loadGameMessage.getGame();
+                System.out.println("\n");
+                DisplayBoard.printBoard(game.getBoard(), playerColor );
+                loadGame(loadGameMessage);
+            }
+            case ERROR -> {
+                ErrorMessage errorMessage = (ErrorMessage) message;
+                System.out.println(errorMessage.getErrorMessage());
+            }
+            case NOTIFICATION -> {
+                NotificationMessage notificationMessage = (NotificationMessage) message;
+                System.out.println(notificationMessage.getNotificationMessage());
+            }
 
+        }
+    }
+
+    private void loadGame(LoadGameMessage loadGameMessage) {
+        ChessGame game = loadGameMessage.getGame();
+        DisplayBoard.printBoard(game.getBoard(), this.playerColor);
+        System.out.print("\n[IN_GAME] >>> ");
     }
 }
