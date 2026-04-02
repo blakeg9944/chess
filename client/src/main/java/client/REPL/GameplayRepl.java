@@ -1,4 +1,7 @@
-package client;
+package client.REPL;
+
+import client.ChessClient;
+import client.ServerFacade;
 
 public class GameplayRepl {
     private final ChessClient client;

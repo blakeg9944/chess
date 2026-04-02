@@ -1,5 +1,7 @@
-package client;
+package client.REPL;
 
+import client.ChessClient;
+import client.ServerFacade;
 import model.*;
 
 public class PreLoginRepl {

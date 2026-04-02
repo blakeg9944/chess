@@ -3,13 +3,18 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import client.REPL.GameplayRepl;
+import client.REPL.PostLoginRepl;
+import client.REPL.PreLoginRepl;
+import client.websocket.NotificationHandler;
 import model.*;
 import ui.DisplayBoard;
+import websocket.messages.ServerMessage;
 
 import java.util.*;
 
 
-public class ChessClient {
+public class ChessClient implements NotificationHandler {
 
     private String authToken = null;
     private List<GameData> lastGames = new ArrayList<>();
@@ -91,5 +96,10 @@ public class ChessClient {
             DisplayBoard.printBoard(board, ChessGame.TeamColor.WHITE);
         }
         return "";
+    }
+
+    @Override
+    public void notify(ServerMessage message){
+
     }
 }

@@ -1,9 +1,8 @@
-package client;
+package client.REPL;
 
-import chess.ChessBoard;
-import chess.ChessGame;
+import client.ChessClient;
+import client.ServerFacade;
 import model.*;
-import ui.DisplayBoard;
 
 import java.util.ArrayList;
 import java.util.List;
