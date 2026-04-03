@@ -46,7 +46,7 @@ public class GameplayRepl {
 
     private String leave(String[] params) {
         client.setState(ChessClient.State.LOGGED_IN);
-        return "";
+        return "Game has been left";
     }
 
     private String redraw(String[] params) {

@@ -2,10 +2,8 @@ package client.websocket;
 
 import com.google.gson.Gson;
 import jakarta.websocket.*;
-import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
-import javax.management.Notification;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,7 +29,7 @@ public class WebSocketFacade extends Endpoint {
                 }
             });
         } catch (URISyntaxException | IllegalStateException | DeploymentException | IOException e) {
-            throw new RuntimeException(e);
+            throw new Exception(e.getMessage());
         }
     }
 
