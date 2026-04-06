@@ -2,6 +2,7 @@ package client.websocket;
 
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -30,6 +31,15 @@ public class WebSocketFacade extends Endpoint {
             });
         } catch (URISyntaxException | IllegalStateException | DeploymentException | IOException e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+    public void sendCommand(UserGameCommand userGameCommand) throws Exception{
+        try{
+            String jsonCommand = new Gson().toJson(userGameCommand);
+            this.session.getBasicRemote().sendText(jsonCommand);
+        } catch (IOException e) {
+            throw new IOException("Error sending message to server: " + e.getMessage());
         }
     }
 
