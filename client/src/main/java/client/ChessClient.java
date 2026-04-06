@@ -26,6 +26,7 @@ public class ChessClient implements NotificationHandler {
     private final PostLoginRepl postLoginRepl;
     private GameplayRepl gameplayRepl;
     private ChessGame.TeamColor playerColor = ChessGame.TeamColor.WHITE;
+    private ChessGame game;
 
     public ChessClient(String serverURL) {
         ServerFacade facade = new ServerFacade(serverURL);
@@ -99,13 +100,18 @@ public class ChessClient implements NotificationHandler {
     }
 
     public String showBoard(String color){
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        if (color.equals("black")){
-            DisplayBoard.printBoard(board, ChessGame.TeamColor.BLACK);
-        }
-        else {
-            DisplayBoard.printBoard(board, ChessGame.TeamColor.WHITE);
+//        ChessBoard board = new ChessBoard();
+//        board.resetBoard();
+//        if (color.equals("black")){
+//            DisplayBoard.printBoard(board, ChessGame.TeamColor.BLACK);
+//        }
+//        else {
+//            DisplayBoard.printBoard(board, ChessGame.TeamColor.WHITE);
+//        }
+        if (this.game != null) {
+            DisplayBoard.printBoard(this.game.getBoard(), playerColor);
+        } else {
+            return "No game currently loaded.";
         }
         return "";
     }
@@ -134,7 +140,12 @@ public class ChessClient implements NotificationHandler {
 
     private void loadGame(LoadGameMessage loadGameMessage) {
         ChessGame game = loadGameMessage.getGame();
+        this.game = game;
         DisplayBoard.printBoard(game.getBoard(), this.playerColor);
         System.out.print("\n[IN_GAME] >>> ");
+    }
+
+    public ChessGame getGame() {
+        return this.game;
     }
 }

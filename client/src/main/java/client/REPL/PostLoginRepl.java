@@ -3,6 +3,7 @@ package client.REPL;
 import chess.ChessGame;
 import client.ChessClient;
 import client.ServerFacade;
+import client.websocket.WebSocketFacade;
 import model.*;
 
 import java.util.ArrayList;
