@@ -106,6 +106,10 @@ public class ChessClient implements NotificationHandler {
         return lastGames;
     }
 
+    public WebSocketFacade getWs() {
+        return ws;
+    }
+
     public String showBoard(String color){
 //        ChessBoard board = new ChessBoard();
 //        board.resetBoard();

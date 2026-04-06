@@ -6,6 +6,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import client.ChessClient;
 import client.ServerFacade;
+import client.websocket.WebSocketFacade;
 import websocket.commands.MakeMoveCommand;
 import websocket.messages.LoadGameMessage;
 
@@ -16,12 +17,14 @@ public class GameplayRepl {
     private final ServerFacade facade;
     private final int gameID;
     private final String playerColor;
+    private final WebSocketFacade ws;
 
-    public GameplayRepl(ChessClient client, ServerFacade facade, int gameID, String playerColor) {
+    public GameplayRepl(ChessClient client, ServerFacade facade, int gameID, String playerColor, WebSocketFacade ws) {
         this.client = client;
         this.facade = facade;
         this.gameID = gameID;
         this.playerColor = playerColor;
+        this.ws = ws;
     }
 
     public String gameplayEval(String cmd, String[] params) {
