@@ -74,7 +74,6 @@ public class PostLoginRepl {
         LoadGameMessage loadGameMessage = new LoadGameMessage(game.game());
         client.loadGame(loadGameMessage);
         client.connectSocket(game.gameID());
-        client.showBoard(color.toLowerCase());
         return String.format("Success! Joined %s as %s.", game.gameName(), color);
     }
 
