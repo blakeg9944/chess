@@ -163,6 +163,7 @@ public class ChessClient implements NotificationHandler {
         try{
             ws.connectWebSocket(authToken, gameID);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Exception("Connection not active");
         }
     }

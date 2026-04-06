@@ -7,6 +7,7 @@ import chess.ChessPosition;
 import client.ChessClient;
 import client.ServerFacade;
 import websocket.commands.MakeMoveCommand;
+import websocket.messages.LoadGameMessage;
 
 import java.util.Scanner;
 
