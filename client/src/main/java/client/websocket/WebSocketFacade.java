@@ -2,7 +2,12 @@ package client.websocket;
 
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -26,6 +31,11 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    switch (serverMessage.getServerMessageType()) {
+                        case LOAD_GAME -> serverMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                        case ERROR -> serverMessage = new Gson().fromJson(message, ErrorMessage.class);
+                        case NOTIFICATION -> serverMessage = new Gson().fromJson(message, NotificationMessage.class);
+                    }
                     notificationHandler.notify(serverMessage);
                 }
             });
@@ -40,6 +50,25 @@ public class WebSocketFacade extends Endpoint {
             this.session.getBasicRemote().sendText(jsonCommand);
         } catch (IOException e) {
             throw new IOException("Error sending message to server: " + e.getMessage());
+        }
+    }
+
+    public void connectWebSocket(String authToken, int gameID) throws Exception{
+        try{
+            ConnectCommand connectCommand = new ConnectCommand(authToken, gameID);
+            sendCommand(connectCommand);
+        } catch (Exception e) {
+            throw new Exception("Error: could not connect to server");
+        }
+
+    }
+
+    public void leaveGameWebSocket(String authToken, int gameID) throws Exception{
+        try{
+            LeaveCommand leaveCommand = new LeaveCommand(authToken, gameID);
+            sendCommand(leaveCommand);
+        } catch (Exception e) {
+            throw new Exception("Error: could not connect to server");
         }
     }
 

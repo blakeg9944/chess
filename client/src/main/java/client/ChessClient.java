@@ -7,6 +7,7 @@ import client.REPL.GameplayRepl;
 import client.REPL.PostLoginRepl;
 import client.REPL.PreLoginRepl;
 import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import model.*;
 import ui.DisplayBoard;
 import websocket.messages.ErrorMessage;
@@ -27,11 +28,13 @@ public class ChessClient implements NotificationHandler {
     private GameplayRepl gameplayRepl;
     private ChessGame.TeamColor playerColor = ChessGame.TeamColor.WHITE;
     private ChessGame game;
+    private WebSocketFacade ws;
 
     public ChessClient(String serverURL) {
         ServerFacade facade = new ServerFacade(serverURL);
         this.postLoginRepl = new PostLoginRepl(this, facade);
         this.preLoginRepl = new PreLoginRepl(this, facade);
+        this.ws = new WebSocketFacade(serverURL, this);
     }
 
     public void run() {
@@ -147,5 +150,17 @@ public class ChessClient implements NotificationHandler {
 
     public ChessGame getGame() {
         return this.game;
+    }
+
+    public void joinGameWebSocket(int gameID, ChessGame.TeamColor color) {
+        // This sends the JSON message to the server via the WebSocket
+        ws.joinPlayer(authToken, gameID, color);
+        this.playerColor = color;
+        this.state = State.IN_GAME;
+    }
+
+    public void observeGameWebSocket(int gameID) {
+        ws.observePlayer(authToken, gameID);
+        this.state = State.IN_GAME;
     }
 }
