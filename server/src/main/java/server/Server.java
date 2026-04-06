@@ -12,6 +12,7 @@ import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
 import io.javalin.*;
 import server.handler.*;
+import server.websocket.WebSocketHandler;
 import service.*;
 
 import static dataaccess.DatabaseManager.createDatabase;
@@ -38,6 +39,10 @@ public class Server {
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
+        WebSocketHandler webSocketHandler = new WebSocketHandler();
+        javalin.ws("/ws", ws -> {
+            ws.onMessage(ctx -> webSocketHandler.onMessage(ctx.session, ctx.message()));
+        });
         //
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         javalin.delete("/db", (ctx) -> new ClearHandler(clearService).handle(ctx));

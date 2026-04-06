@@ -5,6 +5,7 @@ import client.ChessClient;
 import client.ServerFacade;
 import client.websocket.WebSocketFacade;
 import model.*;
+import websocket.messages.LoadGameMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,8 @@ public class PostLoginRepl {
         client.connectSocket(game.gameID());
         client.setState(ChessClient.State.IN_GAME);
         client.showBoard(color.toLowerCase());
+        LoadGameMessage loadGameMessage = new LoadGameMessage(client.getGame());
+        client.loadGame(loadGameMessage);
         return String.format("Success! Joined %s as %s.", game.gameName(), color);
     }
 

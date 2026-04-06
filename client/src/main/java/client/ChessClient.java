@@ -145,7 +145,7 @@ public class ChessClient implements NotificationHandler {
         }
     }
 
-    private void loadGame(LoadGameMessage loadGameMessage) {
+    public void loadGame(LoadGameMessage loadGameMessage) {
         ChessGame game = loadGameMessage.getGame();
         this.game = game;
         DisplayBoard.printBoard(game.getBoard(), this.playerColor);
@@ -157,6 +157,9 @@ public class ChessClient implements NotificationHandler {
     }
 
     public void connectSocket(int gameID) throws Exception{
+        if (ws == null){
+            throw new Exception("Error: WebSocket not initialized yet");
+        }
         try{
             ws.connectWebSocket(authToken, gameID);
         } catch (Exception e) {
