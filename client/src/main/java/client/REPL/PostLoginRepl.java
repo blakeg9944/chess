@@ -69,6 +69,7 @@ public class PostLoginRepl {
         client.setPlayerColor(playerColor);
         this.client.setGameplayRepl(new GameplayRepl(this.client, this.facade, game.gameID(), color));
         facade.joinGame(new JoinGameRequest(color, game.gameID()), client.getAuthToken());
+        client.connectSocket(game.gameID());
         client.setState(ChessClient.State.IN_GAME);
         client.showBoard(color.toLowerCase());
         return String.format("Success! Joined %s as %s.", game.gameName(), color);

@@ -30,11 +30,15 @@ public class ChessClient implements NotificationHandler {
     private ChessGame game;
     private WebSocketFacade ws;
 
-    public ChessClient(String serverURL) {
+    public ChessClient(String serverURL) throws Exception {
         ServerFacade facade = new ServerFacade(serverURL);
         this.postLoginRepl = new PostLoginRepl(this, facade);
         this.preLoginRepl = new PreLoginRepl(this, facade);
-        this.ws = new WebSocketFacade(serverURL, this);
+        try {
+            this.ws = new WebSocketFacade(serverURL, this);
+        } catch (Exception e) {
+            System.out.println("Warning: Web Socket Connection Faulting" + e.getMessage());
+        }
     }
 
     public void run() {
@@ -124,7 +128,7 @@ public class ChessClient implements NotificationHandler {
         switch (message.getServerMessageType()){
             case LOAD_GAME ->{
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;
-                ChessGame game = loadGameMessage.getGame();
+                this.game = loadGameMessage.getGame();
                 System.out.println("\n");
                 DisplayBoard.printBoard(game.getBoard(), playerColor );
                 loadGame(loadGameMessage);
@@ -152,15 +156,11 @@ public class ChessClient implements NotificationHandler {
         return this.game;
     }
 
-    public void joinGameWebSocket(int gameID, ChessGame.TeamColor color) {
-        // This sends the JSON message to the server via the WebSocket
-        ws.joinPlayer(authToken, gameID, color);
-        this.playerColor = color;
-        this.state = State.IN_GAME;
-    }
-
-    public void observeGameWebSocket(int gameID) {
-        ws.observePlayer(authToken, gameID);
-        this.state = State.IN_GAME;
+    public void connectSocket(int gameID) throws Exception{
+        try{
+            ws.connectWebSocket(authToken, gameID);
+        } catch (Exception e) {
+            throw new Exception("Connection not active");
+        }
     }
 }
