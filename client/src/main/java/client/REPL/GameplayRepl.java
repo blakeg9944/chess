@@ -9,7 +9,6 @@ import client.ServerFacade;
 import client.websocket.WebSocketFacade;
 import ui.DisplayBoard;
 import websocket.commands.MakeMoveCommand;
-import websocket.messages.LoadGameMessage;
 
 import java.util.Collection;
 import java.util.List;
@@ -47,12 +46,12 @@ public class GameplayRepl {
     }
 
     private String highlightMovePieces(String[] params) throws Exception {
-        String coord = params[0];
-        ChessPosition pos = parsePos(coord);
-        ChessPiece piece = client.getGame().getBoard().getPiece(pos);
-        System.out.println("Piece at " + coord + ": " + piece); // Is this null?
+        if (params == null){
+            throw new Exception("Error: Expected <PIECE POSITION>");
+        }
+        String cord = params[0];
+        ChessPosition pos = parsePos(cord);
         Collection<ChessMove> moves = client.getGame().validMoves(pos);
-        System.out.println("Moves: " + moves);
         List<ChessPosition> endPositions = moves.stream()
                 .map(ChessMove::getEndPosition)
                 .toList();
@@ -144,32 +143,17 @@ public class GameplayRepl {
             leave - exits the game back to menu
             move - <START POSITION> <END POSITION> - moves piece of choice
             resign - quit the game
-            highlight - highlights all legal moves
+            highlight - <PIECE POSITION> - highlights all legal moves
             help- with possible commands
             """;
     }
 
-//    private ChessPosition parsePos(String input) throws Exception {
-//        int col = input.charAt(0) - 'a' + 1;
-//        int row = Character.getNumericValue(input.charAt(1));
-//        if (col < 1 || col > 8 || row < 1 || row > 8) {
-//            throw new Exception("Error: Move must be in Coordinate Format (a1)");
-//        }
-//        return new ChessPosition(row, col);
-//    }
-
     private ChessPosition parsePos(String input) throws Exception {
-        // 1. Basic length check
         if (input == null || input.length() < 2) {
             throw new Exception("Error: Invalid format. Use 'a1' through 'h8'");
         }
-
-        // 2. Normalize to lowercase so 'A1' and 'a1' both work
         String cleanInput = input.toLowerCase();
-
         int col = cleanInput.charAt(0) - 'a' + 1;
-
-        // 3. Direct numeric conversion
         char rowChar = cleanInput.charAt(1);
         if (!Character.isDigit(rowChar)) {
             throw new Exception("Error: Row must be a number (1-8)");

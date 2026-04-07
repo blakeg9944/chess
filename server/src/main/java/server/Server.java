@@ -39,7 +39,7 @@ public class Server {
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
-        WebSocketHandler webSocketHandler = new WebSocketHandler();
+        WebSocketHandler webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
         javalin.ws("/ws", ws -> {
             ws.onMessage(ctx -> webSocketHandler.onMessage(ctx.session, ctx.message()));
         });

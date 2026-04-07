@@ -38,6 +38,7 @@ public class ConnectionManager {
 
     public void broadcast(int gameID, Session excludeSession, ServerMessage serverMessage) throws IOException {
         Set<Session> sessions = getSessionsForGame(gameID);
+        System.out.println("Broadcasting to game " + gameID + ". Total sessions found: " + (sessions != null ? sessions.size() : 0));
         String message = new Gson().toJson(serverMessage);
         for (Session s: sessions){
             if (s.isOpen() && !s.equals(excludeSession)){

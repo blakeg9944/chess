@@ -21,9 +21,14 @@ import websocket.messages.NotificationMessage;
 
 public class WebSocketHandler {
 
-    private final AuthDAO authDAO = new SQLAuthDAO();
-    private final GameDAO gameDAO = new SQLGameDAO();
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
     private final ConnectionManager connections = new ConnectionManager();
+
+    public WebSocketHandler(AuthDAO authDAO, GameDAO gameDAO) {
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
+    }
 
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
@@ -121,6 +126,12 @@ public class WebSocketHandler {
                 notifString = String.format("%s is observing the game", authData.username());
             }
             NotificationMessage notificationMessage = new NotificationMessage(notifString);
+            // --- DEBUG LOGS ---
+            System.out.println("[DEBUG] Game ID from command: " + gameID);
+            var sessionsInGame = connections.getSessionsForGame(gameID);
+            System.out.println("[DEBUG] Sessions currently tracked for this game: " + (sessionsInGame != null ? sessionsInGame.size() : 0));
+// ------------------
+
             connections.broadcast(gameID, session, notificationMessage);
         }
         catch(UnauthorizedException exception){
@@ -230,7 +241,7 @@ public class WebSocketHandler {
         String username = auth.username();
         ChessGame chessGame = game.game();
         if (!username.equals(game.whiteUsername()) && !username.equals(game.blackUsername())) {
-            throw new InvalidMoveException("You are not a player in this game.");
+            throw new InvalidMoveException("Error: You are not a player in this game.");
         }
         boolean isWhite = username.equals(game.whiteUsername());
         boolean isBlack = username.equals(game.blackUsername());

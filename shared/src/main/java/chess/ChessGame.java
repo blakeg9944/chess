@@ -103,7 +103,7 @@ public class ChessGame {
                board.addPiece(destinPos,promotionPiece);
            }
            else{
-               throw new InvalidMoveException();
+               throw new InvalidMoveException("Error: Move not valid");
            }
        }
        else{
@@ -113,7 +113,7 @@ public class ChessGame {
                board.addPiece(destinPos, piece);
            }
            else{
-               throw new InvalidMoveException();
+               throw new InvalidMoveException("Error: Move not valid");
            }
        }
        if (teamTurn == TeamColor.WHITE){
@@ -187,7 +187,7 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn && chessGame.gameOver;
+        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn && gameOver == chessGame.gameOver;
     }
 
     @Override
