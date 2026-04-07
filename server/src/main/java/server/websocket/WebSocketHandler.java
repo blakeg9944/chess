@@ -9,9 +9,11 @@ import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
+import io.javalin.websocket.*;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import org.jetbrains.annotations.NotNull;
 import service.BadRequestException;
 import service.UnauthorizedException;
 import websocket.commands.*;
@@ -19,7 +21,7 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
-public class WebSocketHandler {
+public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
@@ -268,5 +270,22 @@ public class WebSocketHandler {
         if (piece.getTeamColor() != playerColor) {
             throw new Exception("Error: That is not your piece!");
         }
+    }
+
+    @Override
+    public void handleClose(@NotNull WsCloseContext wsCloseContext) throws Exception {
+        System.out.println("WebSocketClosed");
+
+    }
+
+    @Override
+    public void handleConnect(@NotNull WsConnectContext wsConnectContext) throws Exception {
+        System.out.println("WebSocketEstablished");
+
+    }
+
+    @Override
+    public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
+        onMessage(wsMessageContext.session, wsMessageContext.message());
     }
 }

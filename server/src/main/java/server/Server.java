@@ -41,8 +41,13 @@ public class Server {
         javalin.start(desiredPort);
         WebSocketHandler webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
         javalin.ws("/ws", ws -> {
-            ws.onMessage(ctx -> webSocketHandler.onMessage(ctx.session, ctx.message()));
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
         });
+//        javalin.ws("/ws", ws -> {
+//            ws.onMessage(ctx -> webSocketHandler.onMessage(ctx.session, ctx.message()));
+//        });
         //
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         javalin.delete("/db", (ctx) -> new ClearHandler(clearService).handle(ctx));
