@@ -285,6 +285,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
-        onMessage(wsMessageContext.session, wsMessageContext.message());
+        try {
+            onMessage(wsMessageContext.session, wsMessageContext.message());
+        } catch (Exception e) {
+            e.printStackTrace(); // 🔥 THIS WILL EXPOSE EVERYTHING
+        }
     }
 }
