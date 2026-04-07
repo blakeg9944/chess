@@ -7,9 +7,12 @@ import chess.ChessPosition;
 import client.ChessClient;
 import client.ServerFacade;
 import client.websocket.WebSocketFacade;
+import ui.DisplayBoard;
 import websocket.commands.MakeMoveCommand;
 import websocket.messages.LoadGameMessage;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 
 public class GameplayRepl {
@@ -43,8 +46,18 @@ public class GameplayRepl {
         }
     }
 
-    private String highlightMovePieces(String[] params) {
-        return null;
+    private String highlightMovePieces(String[] params) throws Exception {
+        String coord = params[0];
+        ChessPosition pos = parsePos(coord);
+        ChessPiece piece = client.getGame().getBoard().getPiece(pos);
+        System.out.println("Piece at " + coord + ": " + piece); // Is this null?
+        Collection<ChessMove> moves = client.getGame().validMoves(pos);
+        System.out.println("Moves: " + moves);
+        List<ChessPosition> endPositions = moves.stream()
+                .map(ChessMove::getEndPosition)
+                .toList();
+        DisplayBoard.printBoardWithHighlights(client.getGame().getBoard(), pos, client.getPlayerColor(), endPositions);
+        return "";
     }
 
     private String resign(String[] params) throws Exception {
@@ -65,14 +78,23 @@ public class GameplayRepl {
             int endRow = endPos.getRow();
             ChessPiece piece = game.getBoard().getPiece(startPos);
             ChessPiece.PieceType type = null;
-            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
-                    (piece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1)) {
-
-                type = promptForPromotion();
-            }
+//            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
+//                    (piece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1)) {
+//
+//                type = promptForPromotion();
+//            }
             ChessMove move = new ChessMove(startPos, endPos, type);
             MakeMoveCommand makeMoveCommand = new MakeMoveCommand(client.getAuthToken(), gameID, move);
-
+            if (game.getTeamTurn() != client.getPlayerColor()) {
+                throw new Exception("Error: Not your turn");
+            }
+            if (piece == null) {
+                throw new Exception("Error: No piece at position");
+            }
+            if (piece.getTeamColor() != client.getPlayerColor()) {
+                throw new Exception("Error: Cannot move opponent's piece");
+            }
+            ws.sendCommand(makeMoveCommand);
             return "Piece Moved!";
 
         } catch (Exception e) {
@@ -127,12 +149,39 @@ public class GameplayRepl {
             """;
     }
 
+//    private ChessPosition parsePos(String input) throws Exception {
+//        int col = input.charAt(0) - 'a' + 1;
+//        int row = Character.getNumericValue(input.charAt(1));
+//        if (col < 1 || col > 8 || row < 1 || row > 8) {
+//            throw new Exception("Error: Move must be in Coordinate Format (a1)");
+//        }
+//        return new ChessPosition(row, col);
+//    }
+
     private ChessPosition parsePos(String input) throws Exception {
-        int col = input.charAt(0) - 'a' + 1;
-        int row = Character.getNumericValue(input.charAt(1));
-        if (col < 1 || col > 8 || row < 1 || row > 8) {
-            throw new Exception("Error: Move must be in Coordinate Format (a1)");
+        // 1. Basic length check
+        if (input == null || input.length() < 2) {
+            throw new Exception("Error: Invalid format. Use 'a1' through 'h8'");
         }
+
+        // 2. Normalize to lowercase so 'A1' and 'a1' both work
+        String cleanInput = input.toLowerCase();
+
+        int col = cleanInput.charAt(0) - 'a' + 1;
+
+        // 3. Direct numeric conversion
+        char rowChar = cleanInput.charAt(1);
+        if (!Character.isDigit(rowChar)) {
+            throw new Exception("Error: Row must be a number (1-8)");
+        }
+        int row = rowChar - '0';
+
+        // 4. Bounds check
+        if (col < 1 || col > 8 || row < 1 || row > 8) {
+            throw new Exception("Error: Position out of bounds (a1-h8)");
+        }
+        System.out.println(row);
+        System.out.println(col);
         return new ChessPosition(row, col);
     }
 }

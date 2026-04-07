@@ -72,9 +72,9 @@ public class DisplayBoard {
         ChessPosition currentPos = new ChessPosition(row, col);
         boolean isDark = (row + col) % 2 == 0;
         if (startPos != null && currentPos.equals(startPos)) {
-            OUT.print(SET_BG_COLOR_YELLOW);
+            OUT.print(SET_BG_COLOR_DARK_GREEN);
         } else if (highlightPos != null && highlightPos.contains(currentPos)) {
-            OUT.print(isDark ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN);
+            OUT.print(SET_BG_COLOR_GREEN);
         } else {
             OUT.print(isDark ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY);
         }

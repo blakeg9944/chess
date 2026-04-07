@@ -47,6 +47,7 @@ public class WebSocketFacade extends Endpoint {
     public void sendCommand(UserGameCommand userGameCommand) throws Exception{
         try{
             String jsonCommand = new Gson().toJson(userGameCommand);
+            System.out.println(jsonCommand);
             this.session.getBasicRemote().sendText(jsonCommand);
         } catch (IOException e) {
             throw new IOException("Error sending message to server: " + e.getMessage());
