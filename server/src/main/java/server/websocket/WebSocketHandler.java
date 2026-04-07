@@ -281,7 +281,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleConnect(@NotNull WsConnectContext wsConnectContext) throws Exception {
         System.out.println("WebSocketEstablished");
-
     }
 
     @Override
