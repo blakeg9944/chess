@@ -104,9 +104,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 notifString = String.format("%s is observing the game", authData.username());
             }
             NotificationMessage notificationMessage = new NotificationMessage(notifString);
-            System.out.println("[DEBUG] Game ID from command: " + gameID);
-            var sessionsInGame = connections.getSessionsForGame(gameID);
-            System.out.println("[DEBUG] Sessions currently tracked for this game: " + (sessionsInGame != null ? sessionsInGame.size() : 0));
             connections.broadcast(gameID, session, notificationMessage);
         } catch (UnauthorizedException exception) {
             ErrorMessage errorMessage = new ErrorMessage("Error: Unauthorized");

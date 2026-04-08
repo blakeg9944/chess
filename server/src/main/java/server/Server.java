@@ -26,7 +26,6 @@ public class Server {
     private final GameDAO gameDAO = new SQLGameDAO();
 
     public Server() {
-        System.out.println("[Server] Constructor called");
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         System.out.println("[Server] Javalin instance created");
         try {

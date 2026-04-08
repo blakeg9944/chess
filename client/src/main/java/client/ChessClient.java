@@ -35,11 +35,6 @@ public class ChessClient implements NotificationHandler {
         ServerFacade facade = new ServerFacade(serverURL);
         this.postLoginRepl = new PostLoginRepl(this, facade);
         this.preLoginRepl = new PreLoginRepl(this, facade);
-//        try {
-//            this.ws = new WebSocketFacade(serverURL, this);
-//        } catch (Exception e) {
-//            System.out.println("Warning: Web Socket Connection Faulting" + e.getMessage());
-//        }
     }
 
     public void run() {
@@ -113,14 +108,6 @@ public class ChessClient implements NotificationHandler {
     }
 
     public String showBoard(String color){
-//        ChessBoard board = new ChessBoard();
-//        board.resetBoard();
-//        if (color.equals("black")){
-//            DisplayBoard.printBoard(board, ChessGame.TeamColor.BLACK);
-//        }
-//        else {
-//            DisplayBoard.printBoard(board, ChessGame.TeamColor.WHITE);
-//        }
         if (this.game != null) {
             DisplayBoard.printBoard(this.game.getBoard(), playerColor);
         } else {
@@ -133,6 +120,7 @@ public class ChessClient implements NotificationHandler {
     public void notify(ServerMessage message){
         switch (message.getServerMessageType()){
             case LOAD_GAME ->{
+                System.out.println();
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;
                 this.game = loadGameMessage.getGame();
                 loadGame(loadGameMessage);
