@@ -1,8 +1,5 @@
 package server.websocket;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.AuthDAO;
@@ -132,7 +129,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             checkMove(authData, gameData, command.getMove());
             gameData.game().makeMove(command.getMove());
             gameDAO.updateGame(gameData);
-            String moveNotif = String.format("[%s] moved from %s to %s", authData.username(), command.getMove().getStartPosition(), command.getMove().getEndPosition());
+            String startPos = posToCoord(command.getMove().getStartPosition());
+            String endPos = posToCoord(command.getMove().getEndPosition());
+            String moveNotif = String.format("%s moved from %s to %s", authData.username(), startPos, endPos);
             NotificationMessage moveNotification = new NotificationMessage(moveNotif);
             NotificationMessage postMoveNotification = buildPostMoveNotification(gameData, authData);
 
@@ -256,5 +255,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    private String posToCoord(ChessPosition pos) {
+        char col = (char) ('a' + pos.getColumn() - 1);
+        int row = pos.getRow();
+        return "" + col + row;
     }
 }
