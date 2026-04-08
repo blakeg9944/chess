@@ -1,9 +1,8 @@
-package client.REPL;
+package client.repl;
 
 import chess.ChessGame;
 import client.ChessClient;
 import client.ServerFacade;
-import client.websocket.WebSocketFacade;
 import model.*;
 import websocket.messages.LoadGameMessage;
 

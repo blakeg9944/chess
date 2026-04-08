@@ -2,9 +2,9 @@ package client;
 
 
 import chess.ChessGame;
-import client.REPL.GameplayRepl;
-import client.REPL.PostLoginRepl;
-import client.REPL.PreLoginRepl;
+import client.repl.GameplayRepl;
+import client.repl.PostLoginRepl;
+import client.repl.PreLoginRepl;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import model.*;

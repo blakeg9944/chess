@@ -44,25 +44,6 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-//    @Override
-//    public int createGame(String gameName) throws DataAccessException {
-//        sqlGameInt += 1;
-//        String statement = "INSERT INTO games(gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
-//        try(Connection con = DatabaseManager.getConnection()) {
-//            try(PreparedStatement preparedStatement = con.prepareStatement(statement)){
-//            preparedStatement.setInt(1, sqlGameInt);
-//            preparedStatement.setString(2, null);
-//            preparedStatement.setString(3, null);
-//            preparedStatement.setString(4, gameName);
-//            preparedStatement.setString(5, gameJson);
-//            preparedStatement.executeUpdate();
-//            return sqlGameInt;
-//            }
-//        } catch (SQLException | DataAccessException e) {
-//            throw new DataAccessException("Error: " + e.getMessage());
-//        }
-//    }
-
 
     @Override
     public GameData getGame(Integer gameID) throws DataAccessException {

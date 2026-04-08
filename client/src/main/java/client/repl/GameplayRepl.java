@@ -1,4 +1,4 @@
-package client.REPL;
+package client.repl;
 
 import chess.ChessGame;
 import chess.ChessMove;

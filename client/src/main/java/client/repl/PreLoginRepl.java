@@ -1,4 +1,4 @@
-package client.REPL;
+package client.repl;
 
 import client.ChessClient;
 import client.ServerFacade;
