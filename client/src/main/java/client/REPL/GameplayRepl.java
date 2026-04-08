@@ -87,11 +87,11 @@ public class GameplayRepl {
             ChessPiece piece = game.getBoard().getPiece(startPos);
             System.out.println("[GameplayRepl] move() piece at startPos=" + piece);
             ChessPiece.PieceType type = null;
-//            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
-//                    (piece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1)) {
-//
-//                type = promptForPromotion();
-//            }
+            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
+                    (piece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1)) {
+
+                type = promptForPromotion();
+            }
             ChessMove move = new ChessMove(startPos, endPos, type);
             System.out.println("[GameplayRepl] move() ChessMove created=" + move);
             MakeMoveCommand makeMoveCommand = new MakeMoveCommand(client.getAuthToken(), gameID, move);
