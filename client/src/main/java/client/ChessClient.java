@@ -1,7 +1,6 @@
 package client;
 
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import client.REPL.GameplayRepl;
 import client.REPL.PostLoginRepl;

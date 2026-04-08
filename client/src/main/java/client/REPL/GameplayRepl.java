@@ -6,10 +6,10 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import client.ChessClient;
 import client.ServerFacade;
-import client.websocket.WebSocketFacade;
 import ui.DisplayBoard;
 import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignCommand;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,10 +32,10 @@ public class GameplayRepl {
         System.out.println("[GameplayRepl] gameplayEval() called - cmd=" + cmd);
         try {
             return switch (cmd) {
-                case "redraw" -> redraw(params);
+                case "redraw" -> redraw();
                 case "leave" -> leave(params);
                 case "move" -> move(params);
-                case "resign" -> resign(params);
+                case "resign" -> resign();
                 case "highlight" -> highlightMovePieces(params);
                 case "quit" -> "quit";
                 default -> help3();
@@ -63,9 +63,27 @@ public class GameplayRepl {
         return "";
     }
 
-    private String resign(String[] params) throws Exception {
+    private String resign() throws Exception {
         System.out.println("[GameplayRepl] resign() called");
-        return null;
+        if (client.getPlayerColor() == null) {
+            throw new Exception("Error: Observers cannot resign");
+        }
+        String choice = promptConfirmResign();
+        if (choice.equals("yes")){
+            ResignCommand resignCommand = new ResignCommand(client.getAuthToken(), gameID);
+            client.getWs().sendCommand(resignCommand);
+            return "You have resigned";
+        }
+        else{
+            return "Canceled: Continue with Game";
+        }
+    }
+
+    private String promptConfirmResign() {
+        System.out.println("Are you sure you want to resign? (Game will be forfeited): [yes] or [no]");
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine().toLowerCase();
+
     }
 
     private String move(String[] params) throws Exception {
@@ -164,7 +182,7 @@ public class GameplayRepl {
         return "Game has been left";
     }
 
-    private String redraw(String[] params) {
+    private String redraw() {
         System.out.println("[GameplayRepl] redraw() called");
         String perspective = playerColor.equalsIgnoreCase("observer") ? "white" : playerColor;
         return client.showBoard(perspective.toLowerCase());
