@@ -8,6 +8,7 @@ import client.ChessClient;
 import client.ServerFacade;
 import client.websocket.WebSocketFacade;
 import ui.DisplayBoard;
+import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
 
 import java.util.Collection;
@@ -69,6 +70,9 @@ public class GameplayRepl {
 
     private String move(String[] params) throws Exception {
         System.out.println("[GameplayRepl] move() called - params length=" + params.length);
+        if (client.getPlayerColor() == null) {
+            throw new Exception("Error: Observers cannot make moves");
+        }
         if (params.length != 2){
             throw new Exception("Error: Expected <START POSITION> <END POSITION>");
         }
@@ -148,15 +152,22 @@ public class GameplayRepl {
         }
     }
 
-    private String leave(String[] params) {
+    private String leave(String[] params) throws Exception {
         System.out.println("[GameplayRepl] leave() called");
         client.setState(ChessClient.State.LOGGED_IN);
+        LeaveCommand leaveCommand = new LeaveCommand(client.getAuthToken(), gameID);
+        try {
+            client.getWs().sendCommand(leaveCommand);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
         return "Game has been left";
     }
 
     private String redraw(String[] params) {
         System.out.println("[GameplayRepl] redraw() called");
-        return client.showBoard(playerColor.toLowerCase());
+        String perspective = playerColor.equalsIgnoreCase("observer") ? "white" : playerColor;
+        return client.showBoard(perspective.toLowerCase());
     }
 
     private String help3() {

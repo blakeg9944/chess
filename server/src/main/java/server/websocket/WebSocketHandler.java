@@ -58,7 +58,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             int gameID = leaveCommand.getGameID();
             GameData gameData = gameDAO.getGame(gameID);
             AuthData authData = getAuth(leaveCommand.getAuthToken());
-            connections.removeSessionFromGame(gameID, session);
             boolean isWhite = authData.username().equals(gameData.whiteUsername());
             boolean isBlack = authData.username().equals(gameData.blackUsername());
             String notifString;
@@ -75,6 +74,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             NotificationMessage notificationMessage = new NotificationMessage(notifString);
             connections.broadcast(gameID, session, notificationMessage);
+            connections.removeSessionFromGame(gameID, session);
         } catch (DataAccessException e) {
             ErrorMessage errorMessage = new ErrorMessage("Error: Check username");
             connections.sendMessage(errorMessage, session);
@@ -218,7 +218,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ChessGame.TeamColor currentTurn = chessGame.getTeamTurn();
         if (isWhite && currentTurn != ChessGame.TeamColor.WHITE ||
                 isBlack && currentTurn != ChessGame.TeamColor.BLACK) {
-            throw new Exception("Error: It is not your turn");
+            throw new Exception("Error: It is not your turn, or you are just an observer");
         }
         ChessPiece piece = chessGame.getBoard().getPiece(move.getStartPosition());
         if (piece == null) {

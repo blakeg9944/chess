@@ -96,8 +96,13 @@ public class PostLoginRepl {
         if (gameIndex >= lastGames.size() || gameIndex < 0) {
             throw new Exception("Error: Invalid game number.");
         }
-        client.setPlayerColor(ChessGame.TeamColor.WHITE);
-        client.showBoard("white");
+        GameData game = lastGames.get(gameIndex);
+        client.setPlayerColor(null);
+        client.setGameplayRepl(new GameplayRepl(client, facade, game.gameID(), "observer"));
+        client.setState(ChessClient.State.IN_GAME);
+        LoadGameMessage loadGameMessage = new LoadGameMessage(game.game());
+        client.loadGame(loadGameMessage);
+        client.connectSocket(game.gameID());;
         return String.format("Enjoy!");
     }
     public String createGame(String[] params) throws Exception {
