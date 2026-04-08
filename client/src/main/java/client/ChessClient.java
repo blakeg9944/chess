@@ -29,16 +29,18 @@ public class ChessClient implements NotificationHandler {
     private ChessGame.TeamColor playerColor = ChessGame.TeamColor.WHITE;
     private ChessGame game;
     private WebSocketFacade ws;
+    private final String serverURL;
 
     public ChessClient(String serverURL) throws Exception {
+        this.serverURL = serverURL;
         ServerFacade facade = new ServerFacade(serverURL);
         this.postLoginRepl = new PostLoginRepl(this, facade);
         this.preLoginRepl = new PreLoginRepl(this, facade);
-        try {
-            this.ws = new WebSocketFacade(serverURL, this);
-        } catch (Exception e) {
-            System.out.println("Warning: Web Socket Connection Faulting" + e.getMessage());
-        }
+//        try {
+//            this.ws = new WebSocketFacade(serverURL, this);
+//        } catch (Exception e) {
+//            System.out.println("Warning: Web Socket Connection Faulting" + e.getMessage());
+//        }
     }
 
     public void run() {
@@ -159,10 +161,8 @@ public class ChessClient implements NotificationHandler {
     }
 
     public void connectSocket(int gameID) throws Exception{
-        if (ws == null){
-            throw new Exception("Error: WebSocket not initialized yet");
-        }
-        try{
+        try {
+            this.ws = new WebSocketFacade(serverURL, this); // fresh connection each time
             ws.connectWebSocket(authToken, gameID);
         } catch (Exception e) {
             e.printStackTrace();

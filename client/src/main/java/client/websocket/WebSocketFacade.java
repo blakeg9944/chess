@@ -19,24 +19,31 @@ public class WebSocketFacade extends Endpoint {
     private Session session;
     private NotificationHandler notificationHandler;
 
-    public WebSocketFacade (String url, NotificationHandler notificationHandler) throws Exception{
-        try{
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws Exception {
+        try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
             this.notificationHandler = notificationHandler;
-
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    switch (serverMessage.getServerMessageType()) {
-                        case LOAD_GAME -> serverMessage = new Gson().fromJson(message, LoadGameMessage.class);
-                        case ERROR -> serverMessage = new Gson().fromJson(message, ErrorMessage.class);
-                        case NOTIFICATION -> serverMessage = new Gson().fromJson(message, NotificationMessage.class);
+                    // FIX: wrap entire body so Tyrus can't silently swallow exceptions
+                    try {
+                        System.out.println("[WebSocketFacade] Raw message received: " + message);
+                        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                        System.out.println("[WebSocketFacade] serverMessageType=" + serverMessage.getServerMessageType());
+                        switch (serverMessage.getServerMessageType()) {
+                            case LOAD_GAME -> serverMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                            case ERROR -> serverMessage = new Gson().fromJson(message, ErrorMessage.class);
+                            case NOTIFICATION -> serverMessage = new Gson().fromJson(message, NotificationMessage.class);
+                        }
+                        notificationHandler.notify(serverMessage);
+                    } catch (Throwable t) {
+                        System.err.println("[WebSocketFacade] Exception in onMessage: " + t.getMessage());
+                        t.printStackTrace();
                     }
-                    notificationHandler.notify(serverMessage);
                 }
             });
         } catch (URISyntaxException | IllegalStateException | DeploymentException | IOException e) {
@@ -44,28 +51,27 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void sendCommand(UserGameCommand userGameCommand) throws Exception{
-        try{
+    public void sendCommand(UserGameCommand userGameCommand) throws Exception {
+        try {
             String jsonCommand = new Gson().toJson(userGameCommand);
-            System.out.println(jsonCommand);
+            System.out.println("[WebSocketFacade] Sending command: " + jsonCommand);
             this.session.getBasicRemote().sendText(jsonCommand);
         } catch (IOException e) {
             throw new IOException("Error sending message to server: " + e.getMessage());
         }
     }
 
-    public void connectWebSocket(String authToken, int gameID) throws Exception{
-        try{
+    public void connectWebSocket(String authToken, int gameID) throws Exception {
+        try {
             ConnectCommand connectCommand = new ConnectCommand(authToken, gameID);
             sendCommand(connectCommand);
         } catch (Exception e) {
             throw new Exception("Error: could not connect to server");
         }
-
     }
 
-    public void leaveGameWebSocket(String authToken, int gameID) throws Exception{
-        try{
+    public void leaveGameWebSocket(String authToken, int gameID) throws Exception {
+        try {
             LeaveCommand leaveCommand = new LeaveCommand(authToken, gameID);
             sendCommand(leaveCommand);
         } catch (Exception e) {
@@ -75,6 +81,5 @@ public class WebSocketFacade extends Endpoint {
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-
     }
 }

@@ -7,8 +7,6 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
-import dataaccess.sql.SQLAuthDAO;
-import dataaccess.sql.SQLGameDAO;
 import io.javalin.websocket.*;
 import model.AuthData;
 import model.GameData;
@@ -32,17 +30,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         this.gameDAO = gameDAO;
     }
 
-    public void onMessage(Session session, String message) throws Exception {
-        UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
-        switch (userGameCommand.getCommandType()) {
-            case MAKE_MOVE -> handleMakeMove(session, message);
-            case CONNECT -> handleConnect(session, message);
-            case LEAVE -> handleLeave(session, message);
-            case RESIGN -> handleResign(session, message);
-        }
-    }
+//    public void onMessage(Session session, String message) throws Exception {
+//        UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
+//        switch (userGameCommand.getCommandType()) {
+//            case MAKE_MOVE -> handleMakeMove(session, message);
+//            case CONNECT -> handleConnect(session, message);
+//            case LEAVE -> handleLeave(session, message);
+//            case RESIGN -> handleResign(session, message);
+//        }
+//    }
 
-    private void handleResign(Session session, String message) throws Exception{
+    private void handleResign(Session session, String message) throws Exception {
         try {
             ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
             int gameID = resignCommand.getGameID();
@@ -68,7 +66,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void handleLeave(Session session, String message) throws Exception {
-        try{
+        try {
             LeaveCommand leaveCommand = new Gson().fromJson(message, LeaveCommand.class);
             int gameID = leaveCommand.getGameID();
             GameData gameData = gameDAO.getGame(gameID);
@@ -76,82 +74,67 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.removeSessionFromGame(gameID, session);
             boolean isWhite = authData.username().equals(gameData.whiteUsername());
             boolean isBlack = authData.username().equals(gameData.blackUsername());
-            String notifString = "";
-            if (isBlack){
+            String notifString;
+            if (isBlack) {
                 GameData newGame = new GameData(gameID, gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
                 gameDAO.updateGame(newGame);
                 notifString = String.format("%s has left the game as black", gameData.blackUsername());
-            }
-            else if (isWhite){
+            } else if (isWhite) {
                 GameData newGame = new GameData(gameID, null, gameData.blackUsername(), gameData.gameName(), gameData.game());
                 gameDAO.updateGame(newGame);
                 notifString = String.format("%s has left the game as white", gameData.whiteUsername());
-            }
-            else {
+            } else {
                 notifString = String.format("%s (observer) has left the game", authData.username());
             }
             NotificationMessage notificationMessage = new NotificationMessage(notifString);
             connections.broadcast(gameID, session, notificationMessage);
-        }
-        catch(DataAccessException e){
+        } catch (DataAccessException e) {
             ErrorMessage errorMessage = new ErrorMessage("Error: Check username");
             connections.sendMessage(errorMessage, session);
-        }
-        catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             ErrorMessage errorMessage = new ErrorMessage("Error: Unauthorized");
             connections.sendMessage(errorMessage, session);
         }
     }
 
-    private void handleConnect(Session session, String message) throws Exception {
-        try{
-            //parsing
+    private void processConnect(Session session, String message) throws Exception {
+        try {
             ConnectCommand command = new Gson().fromJson(message, ConnectCommand.class);
             int gameID = command.getGameID();
             AuthData authData = getAuth(command.getAuthToken());
             GameData gameData = getGame(gameID);
-            //registration
             connections.addSessionToGame(gameID, session);
             boolean isWhite = authData.username().equals(gameData.whiteUsername());
             boolean isBlack = authData.username().equals(gameData.blackUsername());
-            // communication
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
             connections.sendMessage(loadGameMessage, session);
-            String notifString = "";
-            if (isWhite){
+            String notifString;
+            if (isWhite) {
                 notifString = String.format("%s has joined the game as white", authData.username());
-            }
-            else if(isBlack){
+            } else if (isBlack) {
                 notifString = String.format("%s has joined the game as black", authData.username());
-            }
-            else{
+            } else {
                 notifString = String.format("%s is observing the game", authData.username());
             }
             NotificationMessage notificationMessage = new NotificationMessage(notifString);
-            // --- DEBUG LOGS ---
             System.out.println("[DEBUG] Game ID from command: " + gameID);
             var sessionsInGame = connections.getSessionsForGame(gameID);
             System.out.println("[DEBUG] Sessions currently tracked for this game: " + (sessionsInGame != null ? sessionsInGame.size() : 0));
-// ------------------
-
             connections.broadcast(gameID, session, notificationMessage);
-        }
-        catch(UnauthorizedException exception){
+        } catch (UnauthorizedException exception) {
             ErrorMessage errorMessage = new ErrorMessage("Error: Unauthorized");
             connections.sendMessage(errorMessage, session);
         } catch (BadRequestException e) {
             ErrorMessage errorMessage = new ErrorMessage("Error: Bad request");
             connections.sendMessage(errorMessage, session);
-        }
-        catch(DataAccessException exception){
+        } catch (DataAccessException exception) {
             ErrorMessage errorMessage = new ErrorMessage("Error: Game Does Not Exist");
             connections.sendMessage(errorMessage, session);
         }
-
     }
 
     private void handleMakeMove(Session session, String message) throws Exception {
-        try{
+        try {
             MakeMoveCommand command = new Gson().fromJson(message, MakeMoveCommand.class);
             int gameID = command.getGameID();
             AuthData authData = getAuth(command.getAuthToken());
@@ -159,11 +142,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             checkMove(authData, gameData, command.getMove());
             gameData.game().makeMove(command.getMove());
             gameDAO.updateGame(gameData);
+
+            // FIX: do all checks first, collect messages, then broadcast all at the end
+            String moveNotif = String.format("[%s] has moved to %s", authData.username(), command.getMove().getEndPosition());
+            NotificationMessage moveNotification = new NotificationMessage(moveNotif);
+            NotificationMessage postMoveNotification = buildPostMoveNotification(gameData, authData);
+
+            // Now broadcast everything after all checks are done
             connections.broadcast(gameID, null, new LoadGameMessage(gameData.game()));
-            postMoveCheck(gameData, authData);
-            String notifString = String.format("[%s] has moved to %s", authData.username(), command.getMove().getEndPosition());
-            NotificationMessage notificationMessage = new NotificationMessage(notifString);
-            connections.broadcast(gameID, session, notificationMessage);
+            connections.broadcast(gameID, session, moveNotification);
+            if (postMoveNotification != null) {
+                connections.broadcast(gameID, null, postMoveNotification);
+            }
 
         } catch (Exception e) {
             connections.sendMessage(new ErrorMessage(e.getMessage()), session);
@@ -172,72 +162,55 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private AuthData getAuth(String authToken) throws Exception {
         AuthData authData = authDAO.getAuth(authToken);
-        if (authData == null){
+        if (authData == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
         return authData;
     }
 
-    private GameData getGame(Integer gameID) throws Exception{
+    private GameData getGame(Integer gameID) throws Exception {
         GameData gameData = gameDAO.getGame(gameID);
-        if (gameData == null){
+        if (gameData == null) {
             throw new DataAccessException("Error: Game Not Found");
         }
         return gameData;
     }
-    private void postMoveCheck(GameData gameData, AuthData authData) throws Exception{
+
+    // FIX: returns the notification to send rather than broadcasting internally,
+    // so handleMakeMove controls the order of all broadcasts
+    private NotificationMessage buildPostMoveNotification(GameData gameData, AuthData authData) throws Exception {
         boolean isWhite = authData.username().equals(gameData.whiteUsername());
         boolean isBlack = authData.username().equals(gameData.blackUsername());
         ChessGame.TeamColor playerColor;
         ChessGame.TeamColor oppColor;
-        if (isWhite){
+        if (isWhite) {
             playerColor = ChessGame.TeamColor.WHITE;
             oppColor = ChessGame.TeamColor.BLACK;
-
-        }
-        else if(isBlack) {
+        } else if (isBlack) {
             playerColor = ChessGame.TeamColor.BLACK;
             oppColor = ChessGame.TeamColor.WHITE;
-        }
-        else{
-            playerColor = null;
-            oppColor = null;
-        }
-        if (playerColor == null) {
-            return;
+        } else {
+            return null;
         }
 
-        if (gameData.game().isInCheckmate(oppColor)){
+        if (gameData.game().isInCheckmate(oppColor)) {
             gameData.game().setGameOver(true);
             gameDAO.updateGame(gameData);
-            String notifString = String.format("Wow checkmate! [%s] wins", authData.username());
-            NotificationMessage notificationMessage = new NotificationMessage(notifString);
-            connections.broadcast(gameData.gameID(), null, notificationMessage);
-        }
-        else if (gameData.game().isInStalemate(oppColor)){
+            return new NotificationMessage(String.format("Checkmate! [%s] wins", authData.username()));
+        } else if (gameData.game().isInStalemate(oppColor)) {
             gameData.game().setGameOver(true);
             gameDAO.updateGame(gameData);
-            NotificationMessage notificationMessage = new NotificationMessage("Stalemate! Game over");
-            connections.broadcast(gameData.gameID(), null, notificationMessage);
-        }
-        else if(gameData.game().isInCheck(oppColor)){
-            String opp;
-            if (isBlack){
-                opp = "WHITE";
-            }
-            else{
-                opp = "BLACK";
-            }
+            return new NotificationMessage("Stalemate! Game over");
+        } else if (gameData.game().isInCheck(oppColor)) {
             gameDAO.updateGame(gameData);
-            String notifString = String.format("[%s] is in Check", opp );
-            NotificationMessage notificationMessage = new NotificationMessage(notifString);
-            connections.broadcast(gameData.gameID(), null, notificationMessage);
+            String opp = isBlack ? "WHITE" : "BLACK";
+            return new NotificationMessage(String.format("[%s] is in Check", opp));
         }
-
+        return null;
     }
 
-    private void checkMove(AuthData auth, GameData game, ChessMove move) throws Exception{
-        if (game.game().isGameOver()){
+    private void checkMove(AuthData auth, GameData game, ChessMove move) throws Exception {
+        if (game.game().isGameOver()) {
             throw new Exception("Error: The game is over. No more moves allowed.");
         }
         String username = auth.username();
@@ -248,19 +221,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         boolean isWhite = username.equals(game.whiteUsername());
         boolean isBlack = username.equals(game.blackUsername());
         ChessGame.TeamColor playerColor;
-        if (isWhite){
+        if (isWhite) {
             playerColor = ChessGame.TeamColor.WHITE;
-
-        }
-        else if(isBlack){
+        } else if (isBlack) {
             playerColor = ChessGame.TeamColor.BLACK;
-        }
-        else{
+        } else {
             playerColor = null;
         }
         ChessGame.TeamColor currentTurn = chessGame.getTeamTurn();
         if (isWhite && currentTurn != ChessGame.TeamColor.WHITE ||
-                isBlack && currentTurn != ChessGame.TeamColor.BLACK){
+                isBlack && currentTurn != ChessGame.TeamColor.BLACK) {
             throw new Exception("Error: It is not your turn");
         }
         ChessPiece piece = chessGame.getBoard().getPiece(move.getStartPosition());
@@ -275,7 +245,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleClose(@NotNull WsCloseContext wsCloseContext) throws Exception {
         System.out.println("WebSocketClosed");
-
     }
 
     @Override
@@ -286,9 +255,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(@NotNull WsMessageContext wsMessageContext) throws Exception {
         try {
-            onMessage(wsMessageContext.session, wsMessageContext.message());
+            String message = wsMessageContext.message();
+            Session session = wsMessageContext.session;
+            UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
+            switch (userGameCommand.getCommandType()) {
+                case MAKE_MOVE -> handleMakeMove(session, message);
+                case CONNECT -> processConnect(session, message);
+                case LEAVE -> handleLeave(session, message);
+                case RESIGN -> handleResign(session, message);
+            }
         } catch (Exception e) {
-            e.printStackTrace(); // 🔥 THIS WILL EXPOSE EVERYTHING
+            e.printStackTrace();
         }
     }
 }

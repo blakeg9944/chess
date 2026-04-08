@@ -10,7 +10,7 @@ public class ServerMain {
             System.out.println("Database and tables ready!");
 
             Server server = new Server();
-            server.run(8080);
+            server.run(8081);
             var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
             System.out.println("♕ 240 Chess Server: " + piece);
         }

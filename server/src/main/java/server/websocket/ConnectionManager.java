@@ -13,35 +13,45 @@ public class ConnectionManager {
 
     ConcurrentHashMap<Integer, Set<Session>> gameRooms = new ConcurrentHashMap<>();
 
-    public void addSessionToGame(int gameID, Session session){
+    public void addSessionToGame(int gameID, Session session) {
         gameRooms.computeIfAbsent(gameID, k -> Collections.newSetFromMap(new ConcurrentHashMap<>())).add(session);
     }
 
-    public void removeSessionFromGame(int gameID, Session session){
+    public void removeSessionFromGame(int gameID, Session session) {
         Set<Session> sessionSet = getSessionsForGame(gameID);
-        if (sessionSet != null){
+        if (sessionSet != null) {
             sessionSet.remove(session);
-            if (sessionSet.isEmpty()){
+            if (sessionSet.isEmpty()) {
                 gameRooms.remove(gameID);
             }
         }
     }
 
-    public Set<Session> getSessionsForGame(int gameID){
+    public Set<Session> getSessionsForGame(int gameID) {
         return gameRooms.get(gameID);
     }
 
+    // FIX: check session.isOpen() before sending
     public void sendMessage(ServerMessage serverMessage, Session session) throws IOException {
-        String message = new Gson().toJson(serverMessage);
-        session.getRemote().sendString(message);
+        if (session.isOpen()) {
+            String message = new Gson().toJson(serverMessage);
+            session.getRemote().sendString(message);
+        } else {
+            System.out.println("[ConnectionManager] sendMessage() skipped - session is closed");
+        }
     }
 
+    // FIX: null-safe excludeSession check + isOpen() guard
     public void broadcast(int gameID, Session excludeSession, ServerMessage serverMessage) throws IOException {
         Set<Session> sessions = getSessionsForGame(gameID);
         System.out.println("Broadcasting to game " + gameID + ". Total sessions found: " + (sessions != null ? sessions.size() : 0));
+        if (sessions == null) {
+            return;
+        }
         String message = new Gson().toJson(serverMessage);
-        for (Session s: sessions){
-            if (s.isOpen() && !s.equals(excludeSession)){
+        for (Session s : sessions) {
+            boolean isExcluded = excludeSession != null && s.equals(excludeSession);
+            if (s.isOpen() && !isExcluded) {
                 s.getRemote().sendString(message);
             }
         }
