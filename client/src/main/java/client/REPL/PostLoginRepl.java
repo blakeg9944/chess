@@ -68,7 +68,7 @@ public class PostLoginRepl {
         String color = params[1].toUpperCase();
         ChessGame.TeamColor playerColor = ChessGame.TeamColor.valueOf(color);
         client.setPlayerColor(playerColor);
-        this.client.setGameplayRepl(new GameplayRepl(this.client, this.facade, game.gameID(), color, client.getWs()));
+        this.client.setGameplayRepl(new GameplayRepl(this.client, this.facade, game.gameID(), color));
         facade.joinGame(new JoinGameRequest(color, game.gameID()), client.getAuthToken());
         client.setState(ChessClient.State.IN_GAME);
         LoadGameMessage loadGameMessage = new LoadGameMessage(game.game());

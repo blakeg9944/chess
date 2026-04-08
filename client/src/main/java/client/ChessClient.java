@@ -48,6 +48,7 @@ public class ChessClient implements NotificationHandler {
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while (!result.equals("quit")) {
+            System.out.print("\n[" + state + "] >>> ");
             String input = scanner.nextLine();
             var tokens = input.toLowerCase().split(" ");
             String cmd;

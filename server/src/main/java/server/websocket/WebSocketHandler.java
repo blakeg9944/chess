@@ -30,16 +30,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         this.gameDAO = gameDAO;
     }
 
-//    public void onMessage(Session session, String message) throws Exception {
-//        UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
-//        switch (userGameCommand.getCommandType()) {
-//            case MAKE_MOVE -> handleMakeMove(session, message);
-//            case CONNECT -> handleConnect(session, message);
-//            case LEAVE -> handleLeave(session, message);
-//            case RESIGN -> handleResign(session, message);
-//        }
-//    }
-
     private void handleResign(Session session, String message) throws Exception {
         try {
             ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
@@ -142,9 +132,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             checkMove(authData, gameData, command.getMove());
             gameData.game().makeMove(command.getMove());
             gameDAO.updateGame(gameData);
-
-            // FIX: do all checks first, collect messages, then broadcast all at the end
-            String moveNotif = String.format("[%s] has moved to %s", authData.username(), command.getMove().getEndPosition());
+            String moveNotif = String.format("[%s] moved from %s to %s", authData.username(), command.getMove().getStartPosition(), command.getMove().getEndPosition());
             NotificationMessage moveNotification = new NotificationMessage(moveNotif);
             NotificationMessage postMoveNotification = buildPostMoveNotification(gameData, authData);
 
@@ -249,6 +237,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleConnect(@NotNull WsConnectContext wsConnectContext) throws Exception {
+        wsConnectContext.enableAutomaticPings();
         System.out.println("WebSocketEstablished");
     }
 
